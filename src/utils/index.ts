@@ -45,3 +45,22 @@ export async function fetchResults({ asin, userInfo }) {
 
   return scrapped_result
 }
+
+export async function fetchResultsFromKeywords({ keyword }) {
+  const scrapped_result = await fetch(
+    `https://completion.amazon.com/api/2017/suggestions?limit=11&prefix=${keyword}&suggestion-type=WIDGET&suggestion-type=KEYWORD&alias=aps&site-variant=desktop&version=3&event=onkeypress&lop=en_US&mid=ATVPDKIKX0DER`,
+    {
+      headers: {
+        accept: 'application/json, text/plain, */*',
+        'accept-language': 'en-GB,en;q=0.5',
+      },
+      referrer: 'https://www.amazon.com/',
+      referrerPolicy: 'strict-origin-when-cross-origin',
+      body: null,
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'omit',
+    },
+  ).then((res) => res.json())
+  return scrapped_result
+}
