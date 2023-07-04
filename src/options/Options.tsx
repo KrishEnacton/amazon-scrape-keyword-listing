@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import './Options.css'
+import '../tailwindcss/output.css'
 import ScrapeByAsin from './components/ScrapeByAsin'
+import ScrapeByKeyword from './components/ScrapeByKeyword'
 
 // Login with: 15677676824 / CNv$c8nzLkjb.
 
@@ -55,6 +56,7 @@ function App() {
         <button type="submit">Save</button>
       </form>
       <ScrapeByAsin />
+      <ScrapeByKeyword/>
     </main>
   )
 }
