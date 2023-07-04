@@ -8,6 +8,7 @@ import ScrapeByKeyword from './components/ScrapeByKeyword'
 function App() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [isKey, setIsKey] = useState<boolean>(false)
 
   useEffect(() => {
     chrome.storage.local.get((result) => {
@@ -28,46 +29,58 @@ function App() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center h-screen">
+    <main className='flex flex-col items-center justify-center h-screen'>
       <div className='border p-3 rounded-lg'>
-        <h3 className="text-xl font-semibold mb-4">Sytecho Keywords System Login</h3>
-        <form onSubmit={formSubmit} className="max-w-md">
-          <div className="mb-4">
-            <label htmlFor="phone" className="block mb-2">Phone Number:</label>
+        <h3 className='text-xl font-semibold mb-4'>Sytecho Keywords System Login</h3>
+        <form onSubmit={formSubmit} className='max-w-md'>
+          <div className='mb-4'>
+            <label htmlFor='phone' className='block mb-2'>
+              Phone Number:
+            </label>
             <input
-              type="text"
-              name="phone"
-              id="phone"
+              type='text'
+              name='phone'
+              id='phone'
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className='w-full p-2 border border-gray-300 rounded-md'
             />
           </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block mb-2">Password:</label>
+          <div className='mb-4'>
+            <label htmlFor='password' className='block mb-2'>
+              Password:
+            </label>
             <input
-              type="password"
-              name="password"
-              id="password"
+              type='password'
+              name='password'
+              id='password'
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className='w-full p-2 border border-gray-300 rounded-md'
             />
           </div>
           <div className='flex justify-center'>
-          <button type="submit" className="px-8 py-2 bg-blue-600 text-white rounded-md">Save</button>
-
+            <button type='submit' className='px-8 py-2 bg-blue-600 text-white rounded-md'>
+              Save
+            </button>
           </div>
         </form>
       </div>
-      <div className="flex gap-x-6 justify-center mt-6">
-        <ScrapeByAsin />
-        <ScrapeByKeyword />
+      <div className='flex justify-between gap-x-4'>
+        <button className='text-2xl font-bold' onClick={() => setIsKey(false)}>
+          Asin
+        </button>
+        <button className='text-2xl font-bold' onClick={() => setIsKey(true)}>
+          Keyword
+        </button>
+      </div>
+      <div className='flex gap-x-6 justify-center mt-6'>
+        {!isKey && <ScrapeByAsin />}
+        {isKey && <ScrapeByKeyword />}
       </div>
     </main>
-
   )
 }
 
