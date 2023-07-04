@@ -5,25 +5,25 @@ const ScrapeByKeyword: React.FC<{}> = ({ }) => {
     const [keyword, setKeyword] = useState<string>('')
     const [status, setStatus] = useState('ideal')
     const [currentKeyword, setCurrentKeyword] = useState('')
-    const [userInfo, setUserInfo] = useState<any>(null)
+    // const [userInfo, setUserInfo] = useState<any>(null)
 
-    useEffect(() => {
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-            if (request.action === 'USER-INFO-TAKEN') {
-                chrome.storage.local.get((result) => {
-                    if (result.userInfo) {
-                        setUserInfo(result.userInfo)
-                        setStatus('scraping')
-                        sendResponse(true)
-                    } else {
-                        setStatus('error')
-                        sendResponse(true)
-                    }
-                })
-            }
-            return true
-        })
-    }, [])
+    // useEffect(() => {
+    //     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    //         if (request.action === 'USER-INFO-TAKEN') {
+    //             chrome.storage.local.get((result) => {
+    //                 if (result.userInfo) {
+    //                     setUserInfo(result.userInfo)
+    //                     setStatus('scraping')
+    //                     sendResponse(true)
+    //                 } else {
+    //                     setStatus('error')
+    //                     sendResponse(true)
+    //                 }
+    //             })
+    //         }
+    //         return true
+    //     })
+    // }, [])
 
     async function startScrapping(e) {
         e.preventDefault()
