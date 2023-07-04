@@ -59,11 +59,12 @@ const ScrapeByAsin = () => {
   }, [status])
 
   return (
-    <div>
-      <h3>Scrapping By Asin</h3>
+    <div className="flex flex-col items-center justify-center">
+    <div className="max-w-md px-6 py-8 bg-white shadow-lg rounded-lg">
+      <h3 className="text-xl font-semibold mb-4">Scraping By ASIN</h3>
       <form onSubmit={startScrapping}>
-        <div>
-          Enter ASINs:
+        <div className="mb-4">
+          <label htmlFor="asin" className="block mb-2">Enter ASINs:</label>
           <textarea
             name="asin"
             id="asin"
@@ -71,14 +72,17 @@ const ScrapeByAsin = () => {
             value={asin}
             rows={5}
             onChange={(e) => setAsin(e.target.value)}
-          />
+            className="w-full p-2 border border-gray-300 rounded-md resize-none"
+          ></textarea>
         </div>
-        <button type="submit">Start Scrapping</button>
+        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md">Start Scraping</button>
       </form>
-
-      <div>Scrapping Status: {status}</div>
+  
+      <div className="mt-4">Scrapping Status: {status}</div>
       {currentASIN && <div>Current Scrapping ASIN: {currentASIN}</div>}
     </div>
+  </div>
+  
   )
 }
 
