@@ -25,7 +25,6 @@ function App() {
         case 'USER-INFO-TAKEN':
           chrome.storage.local.get((result) => {
             if (result.userInfo) {
-              chrome.tabs.remove(tabInfo.id)
               setUserInfo(result.userInfo)
               setStatus('scraping...')
               sendResponse(true)
@@ -41,14 +40,14 @@ function App() {
   }, [])
 
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-      switch (request.action) {
-        case 'USER-INFO-TAKEN':
-          if (tabInfo.id) chrome.tabs.remove(tabInfo.id)
-          break
-      }
-      return true
-    })
+    // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    //   switch (request.action) {
+    //     case 'USER-INFO-TAKEN':
+    //       if (tabInfo.id) chrome.tabs.remove(tabInfo.id)
+    //       break
+    //   }
+    //   return true
+    // })
     return () => {}
   }, [tabInfo])
 
@@ -74,6 +73,7 @@ function App() {
     ;(async () => {
       try {
         if (status === 'scraping...') {
+          chrome.tabs.remove(tabInfo.id)
           let length = asin?.split(',').length || ''.length
           let i = 0
           while (i < length) {
