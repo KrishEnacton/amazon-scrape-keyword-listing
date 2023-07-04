@@ -46,7 +46,7 @@ export async function fetchResults({ asin, userInfo }) {
   return scrapped_result
 }
 
-export async function fetchResultsFromKeywords({ keyword }) {
+export async function fetchResultsFromKeyword({ keyword }) {
   const scrapped_result = await fetch(
     `https://completion.amazon.com/api/2017/suggestions?limit=11&prefix=${keyword}&suggestion-type=WIDGET&suggestion-type=KEYWORD&alias=aps&site-variant=desktop&version=3&event=onkeypress&lop=en_US&mid=ATVPDKIKX0DER`,
     {
