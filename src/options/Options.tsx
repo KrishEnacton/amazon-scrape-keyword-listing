@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react'
 import './Options.css'
 import { Config } from '../config'
-// 'B07QXV6N1B B0725WFLMB B08GWPY8XP'
+import { fetchResults } from '../utils'
+
+// Login with: 15677676824 / CNv$c8nzLkjb.
 
 function App() {
-  const [phone, setPhone] = useState<string>()
-  const [password, setPassword] = useState<string>()
-  const [status, setStatus] = useState<'ideal' | 'logging' | 'scraping...' | 'error' | 'completed'>(
-    'ideal',
-  )
-  const [userInfo, setUserInfo] = useState<any>()
-  const [asin, setAsin] = useState<string>('B07QXV6N1B,B0725WFLMB,B08GWPY8XP')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [status, setStatus] = useState('ideal')
+  const [userInfo, setUserInfo] = useState<any>(null)
+  const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
   const [currentASIN, setCurrentASIN] = useState('')
-  const [tabInfo, setTabInfo] = useState<any>()
+  const [tabInfo, setTabInfo] = useState<any>(null)
 
   useEffect(() => {
     chrome.storage.local.get((result) => {
@@ -21,37 +21,23 @@ function App() {
       setPassword(password)
     })
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-      switch (request.action) {
-        case 'USER-INFO-TAKEN':
-          chrome.storage.local.get((result) => {
-            if (result.userInfo) {
-              setUserInfo(result.userInfo)
-              setStatus('scraping...')
-              sendResponse(true)
-            } else {
-              setStatus('error')
-              sendResponse(true)
-            }
-          })
-          break
+      if (request.action === 'USER-INFO-TAKEN') {
+        chrome.storage.local.get((result) => {
+          if (result.userInfo) {
+            setUserInfo(result.userInfo)
+            setStatus('scraping')
+            sendResponse(true)
+          } else {
+            setStatus('error')
+            sendResponse(true)
+          }
+        })
       }
       return true
     })
   }, [])
 
-  useEffect(() => {
-    // chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    //   switch (request.action) {
-    //     case 'USER-INFO-TAKEN':
-    //       if (tabInfo.id) chrome.tabs.remove(tabInfo.id)
-    //       break
-    //   }
-    //   return true
-    // })
-    return () => {}
-  }, [tabInfo])
-
-  function formSubmit(e: any) {
+  function formSubmit(e) {
     e.preventDefault()
     chrome.storage.local.set({
       user: {
@@ -61,7 +47,7 @@ function App() {
     })
   }
 
-  function startScrapping(e: any) {
+  async function startScrapping(e) {
     e.preventDefault()
     chrome.tabs.create({ url: Config.login_page, active: false }).then((res) => {
       setTabInfo(res)
@@ -71,63 +57,31 @@ function App() {
 
   useEffect(() => {
     ;(async () => {
-      try {
-        if (status === 'scraping...') {
-          chrome.tabs.remove(tabInfo.id)
-          let length = asin?.split(',').length || ''.length
-          let i = 0
-          while (i < length) {
-            let _currentASIN = asin?.split(',')[i] as string
-            setCurrentASIN(_currentASIN)
-            const asin_search_many = await fetch(
-              'https://www.cijiang.net/cijiang/v2/uj_search/asin_search_many/',
-              {
-                headers: {
-                  accept: 'application/json, text/plain, */*',
-                  'accept-language': 'en-US,en;q=0.9',
-                  'cache-control': 'no-cache',
-                  'content-type': 'application/json',
-                  token: `${userInfo.token}`,
-                },
-                body: `{"asins":["${_currentASIN}"],"marketplace":"US"}`,
-                method: 'POST',
-                mode: 'cors',
-                credentials: 'omit',
-              },
-            ).then((res) => res.json())
-            const scrapped_result = await fetch(
-              `https://www.cijiang.net/cijiang/v2/uj_search/asin_search_many_history/${asin_search_many.data}/?page=1&size=10000&qt=wm`,
-              {
-                headers: {
-                  accept: 'application/json, text/plain, */*',
-                  'accept-language': 'en-US,en;q=0.9',
-                  'cache-control': 'no-cache',
-                  pragma: 'no-cache',
-                  token: `${userInfo.token}`,
-                },
-                body: null,
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'omit',
-              },
-            ).then((res) => res.json())
-            console.log({ [_currentASIN]: scrapped_result })
-            i++
+      switch (status) {
+        case 'scraping':
+          try {
+            chrome.tabs.remove(tabInfo.id)
+            setStatus('scraping')
+            const asinList = asin.split('\n')
+            for (const _currentASIN of asinList) {
+              setCurrentASIN(_currentASIN)
+              const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
+              console.log({ [_currentASIN]: scrapped_result })
+            }
+            setStatus('completed')
+            setCurrentASIN('')
+          } catch (error) {
+            console.log(error)
           }
-          setStatus('completed')
-          setCurrentASIN('')
-        }
-      } catch (error) {
-        console.log(error)
+          break
       }
     })()
-    return () => {}
   }, [status])
 
   return (
     <main>
-      <h3>Cijiang Login</h3>
-      <form action="" onSubmit={formSubmit}>
+      <h3>Sytecho Keywords System Login</h3>
+      <form onSubmit={formSubmit}>
         <div>
           Phone Number:{' '}
           <input
@@ -156,13 +110,13 @@ function App() {
       <h3>Scrapping</h3>
       <form onSubmit={startScrapping}>
         <div>
-          Enter Comma Separated ASIN:
-          <input
-            type="text"
+          Enter ASINs:
+          <textarea
             name="asin"
             id="asin"
             required
             value={asin}
+            rows={5}
             onChange={(e) => setAsin(e.target.value)}
           />
         </div>
