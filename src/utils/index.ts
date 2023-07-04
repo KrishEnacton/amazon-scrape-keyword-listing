@@ -65,10 +65,31 @@ export async function fetchResultsFromKeyword({ keyword }) {
   return scrapped_result
 }
 
-
-
 export function getPercent(currentKeyword: string, keyword: string[]) {
-  const index = keyword.indexOf(currentKeyword)
-  const percent: number = (index == -1 ? keyword.length - 1 : index / keyword.length) * 100
-  return percent < 0 ? 0 : percent > 100 ? 100 : percent
+  if(currentKeyword != '') {
+    const index = keyword.indexOf(currentKeyword)
+    const percent: number = (index == -1 ? keyword.length - 1 : index / keyword.length) * 100
+    return percent < 0 ? 0 : percent > 100 ? 100 : percent
+  }
+  return 0
+}
+
+const headers = new Headers()
+headers.append('Content-Type', 'application/json')
+
+export function postbinAPI(body: any) {
+  const options: any = {
+    method: 'POST',
+    headers,
+    mode: 'cors',
+    body: JSON.stringify(body),
+  }
+  return new Promise((resolve, reject) => {
+    fetch('https://eo34lot01fycdh6.m.pipedream.net', options).then((res) => {
+      return res.json()
+    }).then(data => {
+      console.log({ data })
+      resolve(data)
+    })
+  })
 }

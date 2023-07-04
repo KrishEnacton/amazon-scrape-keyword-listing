@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { Config } from '../../config'
-import { fetchResults, getPercent } from '../../utils'
+import { fetchResults, getPercent, postbinAPI } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'
 
 const ScrapeByAsin = () => {
@@ -11,7 +11,7 @@ const ScrapeByAsin = () => {
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useState<any>(null)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
-  const [tag, setTag] = useState<any>()
+  const [batch, setBatch] = useState<any>()
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -51,12 +51,18 @@ const ScrapeByAsin = () => {
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
+              const body = {
+                batch_name: batch,
+                ASIN: scrapped_result.asin_infos[0],
+                data: scrapped_result.data,
+              }
+              const postBin_result = await postbinAPI(body)
               keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
             }
             setStatus('completed')
             //@ts-ignore
-            setTags((prev) => [...prev, { tag, keywords }])
+            setTags((prev) => [...prev, { batch, keywords }])
             setCurrentASIN('')
           } catch (error) {
             console.log(error)
@@ -65,9 +71,6 @@ const ScrapeByAsin = () => {
       }
     })()
   }, [status])
-  useEffect(() => {
-    console.log({ asin: tags })
-  }, [tags])
 
   return (
     <div className='flex flex-col items-center justify-center'>
@@ -89,14 +92,15 @@ const ScrapeByAsin = () => {
             ></textarea>
           </div>
           <div className='my-4'>
-            <label htmlFor='keyword-tag' className='block mb-2'>
-              Enter Tag:
+            <label htmlFor='keyword-batch' className='block mb-2'>
+              Enter Batch Name: <span className='text-red-500 text-lg'>*</span>
             </label>
             <input
               type='text'
-              name='keyword-tag'
-              id='keyword-tag'
-              onChange={(e) => setTag(e.target.value)}
+              required
+              name='keyword-batch'
+              id='keyword-batch'
+              onChange={(e) => setBatch(e.target.value)}
               className='w-full p-2 border border-gray-300 rounded-md resize-none'
             />
           </div>
