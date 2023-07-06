@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResultsFromKeyword, getPercent, notify, postbinAPI } from '../../utils'
+import { fetchResultsFromKeyword, getPercent, notify, fetchAPI } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
+import { Config } from '../../config'
+import { fileProps } from '../../global'
 
 const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [keyword, setKeyword] = useState<string>('')
   const [status, setStatus] = useState('ideal')
   const [currentKeyword, setCurrentKeyword] = useState('')
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
+  const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
 
   async function startScrapping(e) {
     e.preventDefault()
+    setStatus('scraping')
     try {
-      setStatus('scraping')
       const keywordList = keyword.split('\n')
       let keywords: any = []
       for (const keyword of keywordList) {
@@ -25,10 +28,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           keyword: scrapped_result.prefix,
           suggestions: scrapped_result.suggestions,
         }
-        const postBin_result = await postbinAPI(
-          'https://keywords.aiamzads.com/api/keyword-store/amazon-search',
-          body,
-        )
+        const result: fileProps = await fetchAPI(Config.keyword_search, body)
+        if (result.file_url) {
+          setFile(result.file_url)
+        }
         keywords.push(scrapped_result)
         console.log({ [keyword]: scrapped_result })
       }
@@ -74,9 +77,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             />
           </div>
           <div className="flex justify-center gap-x-4">
-            <div className="my-2">
+            <div>
               <button
                 type="submit"
+                disabled={status == 'scraping' ? true : false}
                 className={`px-4 py-2 bg-blue-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : ''
                 }`}
@@ -85,10 +89,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               </button>
             </div>
             {status == 'completed' && (
-              <div className=" my-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-                  <a download={'value'}>Download CSV</a>
-                </button>
+              <div className="mt-[7.5px]">
+                <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
+                  Download CSV
+                </a>
               </div>
             )}
           </div>
