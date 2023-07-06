@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchResultsFromKeyword, getPercent, notify, fetchAPI } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'

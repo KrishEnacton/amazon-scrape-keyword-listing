@@ -1,31 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import '../tailwindcss/output.css'
 import ScrapeByAsin from './components/ScrapeByAsin'
 import ScrapeByKeyword from './components/ScrapeByKeyword'
 import { ToastContainer } from 'react-toastify'
 import { getToken, notify } from '../utils'
 import 'react-toastify/dist/ReactToastify.css'
+import { userAtom } from './recoil'
+import { useSetRecoilState } from 'recoil'
 
 // Login with: 15677676824 / CNv$c8nzLkjb.
 
 function App() {
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
-  const [isKey, setIsKey] = useState<boolean>(false)
-
-  useEffect(() => {
-    chrome.storage.local.get((result) => {
-      const { phone, password } = result.user
-      setPhone(phone)
-      setPassword(password)
-    })
-  }, [])
+  const [isKey, setIsKey] = useState < boolean>(false)
+  const  setUserInfo = useSetRecoilState(userAtom)
 
   async function formSubmit(e) {
     e.preventDefault()
     const userInfo: any = await getToken({ phone, password })
-    if (userInfo.token) {
+    if (userInfo?.token) {
       notify('Data Saved!')
+      setUserInfo({
+        phone,
+        password,
+        token: userInfo.token,
+      })
       chrome.storage.local.set({
         user: {
           phone,
@@ -95,8 +95,8 @@ function App() {
         </div>
         {!isKey && <ScrapeByAsin />}
         {isKey && <ScrapeByKeyword />}
-        <ToastContainer />
       </div>
+      <ToastContainer/>
     </main>
   )
 }

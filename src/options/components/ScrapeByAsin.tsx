@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResults, getPercent, fetchAPI, notify } from '../../utils'
-import { arrayAtomFamily, arrayAtomObject } from '../recoil'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { fetchAPI, fetchResults, getPercent, notify } from '../../utils'
+import { arrayAtomFamily, arrayAtomObject, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
 
 const ScrapeByAsin = () => {
   const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
-  const [tabInfo, setTabInfo] = useState<any>(null)
   const [status, setStatus] = useState('ideal')
   const [currentASIN, setCurrentASIN] = useState('')
-  const [userInfo, setUserInfo] = useState<any>(null)
+  const [userInfo, setUserInfo] = useRecoilState(userAtom)
   const [file, setFile] = useState<string>(``)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
   const [batch, setBatch] = useState<any>()
@@ -21,9 +18,6 @@ const ScrapeByAsin = () => {
   async function startScrapping(e) {
     e.preventDefault()
     try {
-      chrome.storage.local.get(['user']).then((res: any) => {
-        setUserInfo(res.user)
-      })
       setStatus('logging')
       setStatus('scraping')
     } catch (error) {
@@ -35,8 +29,8 @@ const ScrapeByAsin = () => {
     ;(async () => {
       switch (status) {
         case 'scraping':
-          setStatus('scraping')
           try {
+            setStatus('scraping')
             const asinList = asin.split('\n')
             let keywords: any = []
 
@@ -140,7 +134,6 @@ const ScrapeByAsin = () => {
             <div>{getPercent(currentASIN, asin.split('\n')).toFixed(0) + '%'}</div>
           </>
         )}
-        <ToastContainer />
       </div>
     </div>
   )
