@@ -81,7 +81,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
-                className={`px-4 py-2 bg-blue-600 text-white rounded-md ${
+                className={`px-4 py-2 bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : ''
                 }`}
               >
@@ -101,7 +101,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           <>
             <div className="w-full mt-4 bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between">
               <div
-                className="bg-blue-600 h-2.5 rounded-full"
+                className="bg-green-600 h-2.5 rounded-full"
                 style={{ width: `${getPercent(currentKeyword, keyword.split('\n'))}%` }}
               ></div>
             </div>

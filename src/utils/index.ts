@@ -117,7 +117,6 @@ export function fetchAPI(url: string, body: any): Promise<fileProps> {
         return res.json()
       })
       .then((data) => {
-        console.log({ data })
         resolve(data)
       })
   })

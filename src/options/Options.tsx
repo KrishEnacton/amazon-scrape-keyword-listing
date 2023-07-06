@@ -71,7 +71,7 @@ function App() {
               />
             </div>
             <div className="flex justify-center">
-              <button type="submit" className="px-8 py-2 bg-blue-600 text-white rounded-md">
+              <button type="submit" className="px-8 py-2 bg-green-600 text-white rounded-md">
                 Save
               </button>
             </div>
