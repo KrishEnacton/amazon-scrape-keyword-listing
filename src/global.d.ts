@@ -1,3 +1,6 @@
-/// <reference types="vite/client" />
-
-declare const __APP_VERSION__: string
+type IconProps = {
+  className?: string
+  strokeWidth?: number
+  strokeColor?: string
+  fillColor?: string
+}
