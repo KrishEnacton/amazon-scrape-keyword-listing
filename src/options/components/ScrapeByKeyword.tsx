@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResultsFromKeyword, getPercent } from '../../utils'
+import { fetchResultsFromKeyword, getPercent, postbinAPI } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'
 
 const ScrapeByKeyword: React.FC<{}> = ({}) => {
@@ -8,7 +8,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [status, setStatus] = useState('ideal')
   const [currentKeyword, setCurrentKeyword] = useState('')
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
-  const [tag, setTag] = useState<any>()
+  const [batch, setBatch] = useState<any>()
   // const [userInfo, setUserInfo] = useState<any>(null)
 
   // useEffect(() => {
@@ -38,11 +38,17 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
       for (const keyword of keywordList) {
         setCurrentKeyword(keyword)
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
+        const body = {
+          batch_name: batch,
+          keyword: scrapped_result.prefix,
+          suggestions: scrapped_result.suggestions,
+        }
+        const postBin_result = await postbinAPI(body)
         keywords.push(scrapped_result)
         console.log({ [keyword]: scrapped_result })
       }
       //@ts-ignore
-      setTags((prev) => [...prev, { tag, keywords }])
+      setTags((prev) => [...prev, { batch, keywords }])
       setStatus('completed')
       setCurrentKeyword('')
     } catch (error) {
@@ -75,14 +81,14 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             ></textarea>
           </div>
           <div className='my-4'>
-            <label htmlFor='keyword-tag' className='block mb-2'>
-              Enter Tag:
+            <label htmlFor='keyword-batch' className='block mb-2'>
+              Enter Batch Name: <span className='text-red-500 text-lg'>*</span>
             </label>
             <input
               type='text'
-              name='keyword-tag'
-              id='keyword-tag'
-              onChange={(e) => setTag(e.target.value)}
+              name='keyword-batch'
+              id='keyword-batch'
+              onChange={(e) => setBatch(e.target.value)}
               className='w-full p-2 border border-gray-300 rounded-md resize-none'
             />
           </div>

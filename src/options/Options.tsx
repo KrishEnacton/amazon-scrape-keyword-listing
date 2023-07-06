@@ -69,10 +69,10 @@ function App() {
         </form>
       </div>
       <div className='flex justify-between gap-x-4'>
-        <button className='text-2xl font-bold' onClick={() => setIsKey(false)}>
+        <button className={`text-2xl font-bold ${!isKey ?"underline text-blue-600" :""}`} onClick={() => setIsKey(false)}>
           Asin
         </button>
-        <button className='text-2xl font-bold' onClick={() => setIsKey(true)}>
+        <button className={`text-2xl font-bold ${isKey ?"underline text-blue-600" :""}`} onClick={() => setIsKey(true)}>
           Keyword
         </button>
       </div>
