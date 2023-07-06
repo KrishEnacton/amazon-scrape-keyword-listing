@@ -70,7 +70,6 @@ const ScrapeByAsin = () => {
 
   useEffect(() => {
     chrome.storage.local.get(['user']).then((res: any) => {
-      console.log(res)
       setUserInfo(res.user)
     })
   }, [])
@@ -91,7 +90,6 @@ const ScrapeByAsin = () => {
               value={asin}
               rows={5}
               onChange={(e) => setAsin(e.target.value)}
-              onFocus={() => setStatus('ideal')}
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             ></textarea>
           </div>
@@ -104,7 +102,6 @@ const ScrapeByAsin = () => {
               required
               name="keyword-batch"
               id="keyword-batch"
-              onFocus={() => setStatus('ideal')}
               onChange={(e) => setBatch(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             />
@@ -114,8 +111,8 @@ const ScrapeByAsin = () => {
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
-                className={`px-4 py-2 bg-blue-600 text-white rounded-md ${
-                  status == 'scraping' ? 'px-10 py-3' : ''
+                className={`bg-green-600 text-white rounded-md ${
+                  status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
                 }`}
               >
                 {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
@@ -136,7 +133,7 @@ const ScrapeByAsin = () => {
           <>
             <div className="w-full mt-4 bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between">
               <div
-                className="bg-blue-600 h-2.5 rounded-full"
+                className="bg-green-600 h-2.5 rounded-full"
                 style={{ width: `${getPercent(currentASIN, asin.split('\n'))}%` }}
               ></div>
             </div>
