@@ -1,28 +1,31 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResults, getPercent, getToken, postbinAPI, notify } from '../../utils'
+import { fetchResults, getPercent, fetchAPI, notify } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { SpinnerLoader } from '../../utils/Loaders'
+import { Config } from '../../config'
+import { fileProps } from '../../global'
 
-const ScrapeByAsin = ({ phone, password }) => {
+const ScrapeByAsin = () => {
   const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
   const [tabInfo, setTabInfo] = useState<any>(null)
   const [status, setStatus] = useState('ideal')
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [file, setFile] = useState<string>(``)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
   const [batch, setBatch] = useState<any>()
 
   async function startScrapping(e) {
     e.preventDefault()
     try {
+      chrome.storage.local.get(['user']).then((res: any) => {
+        setUserInfo(res.user)
+      })
       setStatus('logging')
-      const userInfo: any = await getToken({ phone, password })
-      setUserInfo({ ...userInfo, password })
       setStatus('scraping')
-      console.log({ ...userInfo, password })
     } catch (error) {
       setStatus('error')
     }
@@ -32,10 +35,11 @@ const ScrapeByAsin = ({ phone, password }) => {
     ;(async () => {
       switch (status) {
         case 'scraping':
+          setStatus('scraping')
           try {
-            setStatus('scraping')
             const asinList = asin.split('\n')
             let keywords: any = []
+
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
@@ -44,13 +48,11 @@ const ScrapeByAsin = ({ phone, password }) => {
                 ASIN: scrapped_result.asin_infos[0],
                 data: scrapped_result.data,
               }
-              const result = await postbinAPI(
-                'https://keywords.aiamzads.com/api/keyword-store/amazon-search',
-                body,
-              )
-              console.log({ result })
+              const result: fileProps = await fetchAPI(Config.asin_search, body)
+              if (result.file_url) {
+                setFile(result.file_url)
+              }
               keywords.push(scrapped_result)
-              console.log({ status })
               console.log({ [_currentASIN]: scrapped_result })
             }
             setStatus('completed')
@@ -65,6 +67,13 @@ const ScrapeByAsin = ({ phone, password }) => {
       }
     })()
   }, [status])
+
+  useEffect(() => {
+    chrome.storage.local.get(['user']).then((res: any) => {
+      console.log(res)
+      setUserInfo(res.user)
+    })
+  }, [])
 
   return (
     <div className="flex flex-col items-center justify-center">
@@ -115,7 +124,9 @@ const ScrapeByAsin = ({ phone, password }) => {
             {status == 'completed' && (
               <div className=" my-2">
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-                  <a download={'value'}>Download CSV</a>
+                  <a href={file} download>
+                    Download CSV
+                  </a>
                 </button>
               </div>
             )}

@@ -3,7 +3,7 @@ import '../tailwindcss/output.css'
 import ScrapeByAsin from './components/ScrapeByAsin'
 import ScrapeByKeyword from './components/ScrapeByKeyword'
 import { ToastContainer } from 'react-toastify'
-import { notify } from '../utils'
+import { getToken, notify } from '../utils'
 import 'react-toastify/dist/ReactToastify.css'
 
 // Login with: 15677676824 / CNv$c8nzLkjb.
@@ -23,13 +23,17 @@ function App() {
 
   async function formSubmit(e) {
     e.preventDefault()
-    chrome.storage.local.set({
-      user: {
-        phone,
-        password,
-      },
-    })
-    notify('Data Saved!')
+    const userInfo: any = await getToken({ phone, password })
+    if (userInfo.token) {
+      notify('Data Saved!')
+      chrome.storage.local.set({
+        user: {
+          phone,
+          password,
+          token: userInfo.token,
+        },
+      })
+    }
   }
 
   return (
@@ -89,7 +93,7 @@ function App() {
             Keyword
           </button>
         </div>
-        {!isKey && <ScrapeByAsin phone={phone} password={password} />}
+        {!isKey && <ScrapeByAsin />}
         {isKey && <ScrapeByKeyword />}
         <ToastContainer />
       </div>

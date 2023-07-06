@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify'
+import { fileProps } from '../global'
 
 var currentUrl = ''
 export function detectURLChange(callback: any, interval = 1000) {
@@ -86,7 +87,6 @@ export async function getToken({ phone, password }) {
         return res.json()
       })
       .then((data) => {
-        console.log({ value: data.token })
         resolve(data)
       })
   })
@@ -96,17 +96,17 @@ export function getPercent(currentKeyword: string, keyword: string[]) {
   if (currentKeyword != '') {
     const index = keyword.indexOf(currentKeyword)
     const percent: number = ((index + 1) / keyword.length) * 100
-    console.log({ currentKeyword, index: index + 1, percent, len: keyword.length })
     return percent < 0 ? 0 : percent > 100 ? 100 : percent
   }
   return 0
 }
 
-export function postbinAPI(url: string, body: any) {
+export function fetchAPI(url: string, body: any): Promise<fileProps> {
   const options: any = {
     method: 'POST',
     headers: {
       accept: 'application/json, text/plain, */*',
+      'content-type': 'application/json',
     },
     mode: 'cors',
     body: JSON.stringify(body),
