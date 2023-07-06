@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useRecoilState } from 'recoil'
 import { Config } from '../../config'
-import { fetchResults } from '../../utils'
+import { fetchResults, getPercent, postbinAPI } from '../../utils'
+import { arrayAtomFamily, arrayAtomObject } from '../recoil'
 
 const ScrapeByAsin = () => {
   const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
@@ -8,6 +10,8 @@ const ScrapeByAsin = () => {
   const [status, setStatus] = useState('ideal')
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
+  const [batch, setBatch] = useState<any>()
 
   useEffect(() => {
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -43,12 +47,22 @@ const ScrapeByAsin = () => {
             chrome.tabs.remove(tabInfo.id)
             setStatus('scraping')
             const asinList = asin.split('\n')
+            let keywords: any = []
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
+              const body = {
+                batch_name: batch,
+                ASIN: scrapped_result.asin_infos[0],
+                data: scrapped_result.data,
+              }
+              const postBin_result = await postbinAPI(body)
+              keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
             }
             setStatus('completed')
+            //@ts-ignore
+            setTags((prev) => [...prev, { batch, keywords }])
             setCurrentASIN('')
           } catch (error) {
             console.log(error)
@@ -59,25 +73,55 @@ const ScrapeByAsin = () => {
   }, [status])
 
   return (
-    <div>
-      <h3>Scrapping By Asin</h3>
-      <form onSubmit={startScrapping}>
-        <div>
-          Enter ASINs:
-          <textarea
-            name="asin"
-            id="asin"
-            required
-            value={asin}
-            rows={5}
-            onChange={(e) => setAsin(e.target.value)}
-          />
-        </div>
-        <button type="submit">Start Scrapping</button>
-      </form>
-
-      <div>Scrapping Status: {status}</div>
-      {currentASIN && <div>Current Scrapping ASIN: {currentASIN}</div>}
+    <div className='flex flex-col items-center justify-center'>
+      <div className='max-w-md px-6 py-8 bg-white shadow-lg rounded-lg'>
+        <h3 className='text-xl font-semibold mb-4'>Scraping By ASIN</h3>
+        <form onSubmit={startScrapping}>
+          <div className='mb-4'>
+            <label htmlFor='asin' className='block mb-2'>
+              Enter ASINs:
+            </label>
+            <textarea
+              name='asin'
+              id='asin'
+              required
+              value={asin}
+              rows={5}
+              onChange={(e) => setAsin(e.target.value)}
+              className='w-full p-2 border border-gray-300 rounded-md resize-none'
+            ></textarea>
+          </div>
+          <div className='my-4'>
+            <label htmlFor='keyword-batch' className='block mb-2'>
+              Enter Batch Name: <span className='text-red-500 text-lg'>*</span>
+            </label>
+            <input
+              type='text'
+              required
+              name='keyword-batch'
+              id='keyword-batch'
+              onChange={(e) => setBatch(e.target.value)}
+              className='w-full p-2 border border-gray-300 rounded-md resize-none'
+            />
+          </div>
+          <div className='flex justify-center'>
+            <button type='submit' className='px-4 py-2 bg-blue-600 text-white rounded-md'>
+              Start Scraping
+            </button>
+          </div>
+        </form>
+        {status !== 'ideal' && (
+          <>
+            <div className='w-full mt-4 bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between'>
+              <div
+                className='bg-blue-600 h-2.5 rounded-full'
+                style={{ width: `${getPercent(currentASIN, asin.split('\n'))}%` }}
+              ></div>
+            </div>
+            <div>{getPercent(currentASIN, asin.split('\n')).toFixed(0) + '%'}</div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
