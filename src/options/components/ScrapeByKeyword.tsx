@@ -23,6 +23,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
         .trim()
         .split('\n')
         .filter((a) => a)
+      console.log({ keywordList })
       for (const keyword of keywordList) {
         setCurrentKeyword(keyword)
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
@@ -108,11 +109,11 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               <div
                 className="bg-green-600 h-2.5 rounded-full"
                 style={{
-                  width: `${getPercent(counter, keyword.trim().split('\n'))}%`,
+                  width: `${getPercent(counter, keyword.trim().split('\n').filter(Boolean))}%`,
                 }}
               ></div>
             </div>
-            <div>{getPercent(counter, keyword.trim().split('\n')) + '%'}</div>
+            <div>{getPercent(counter, keyword.trim().split('\n').filter(Boolean)) + '%'}</div>
           </>
         )}
       </div>

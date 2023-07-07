@@ -36,6 +36,7 @@ const ScrapeByAsin = () => {
               .trim()
               .split('\n')
               .filter((a) => a)
+            console.log({ asinList })
 
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
@@ -123,11 +124,11 @@ const ScrapeByAsin = () => {
             <div
               className="bg-green-600 h-2.5 rounded-full"
               style={{
-                width: `${getPercent(counter, asin.trim().split('\n'))}%`,
+                width: `${getPercent(counter, asin.trim().split('\n').filter(Boolean))}%`,
               }}
             ></div>
 
-            <div>{getPercent(counter, asin.trim().split('\n')) + '%'}</div>
+            <div>{getPercent(counter, asin.trim().split('\n').filter(Boolean)) + '%'}</div>
           </>
         )}
       </div>
