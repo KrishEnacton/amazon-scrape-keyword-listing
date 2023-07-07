@@ -42,9 +42,14 @@ const ScrapeByAsin = () => {
                 ASIN: scrapped_result.asin_infos[0],
                 data: scrapped_result.data,
               }
-              const result: fileProps = await fetchAPI(Config.asin_search, body)
-              if (result.file_url) {
-                setFile(result.file_url)
+              try {
+                const result: fileProps = await fetchAPI(Config.asin_search, body)
+                if (result.file_url) {
+                  setFile(result.file_url)
+                }
+              } catch (error) {
+                notify('Something went wrong', 'error')
+                return
               }
               keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
