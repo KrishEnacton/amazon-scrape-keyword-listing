@@ -64,7 +64,7 @@ function App() {
                 name="phone"
                 id="phone"
                 required
-                value={userInfo.phone}
+                value={userInfo?.phone ?? ''}
                 onFocus={() => setIsSaved(false)}
                 onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-md"
@@ -79,7 +79,7 @@ function App() {
                 name="password"
                 id="password"
                 required
-                value={userInfo.password}
+                value={userInfo?.password ?? ''}
                 onFocus={() => setIsSaved(false)}
                 onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-md"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchAPI, fetchResults, getPercent, notify } from '../../utils'
-import { arrayAtomFamily, arrayAtomObject, userAtom } from '../recoil'
+import { arrayAtomFamily, arrayAtomObject, counterAtom, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
@@ -11,6 +11,7 @@ const ScrapeByAsin = () => {
   const [status, setStatus] = useState('ideal')
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useRecoilState(userAtom)
+  const [counter, setCounter] = useRecoilState(counterAtom)
   const [file, setFile] = useState<string>(``)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
   const [batch, setBatch] = useState<any>()
@@ -31,10 +32,11 @@ const ScrapeByAsin = () => {
         case 'scraping':
           try {
             setStatus('scraping')
-            const asinList = asin.split('\n')
+            const asinList = asin.trim().split('\n')
             let keywords: any = []
 
             for (const _currentASIN of asinList) {
+              setCounter((prev) => prev + 1)
               setCurrentASIN(_currentASIN)
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
               const body = {
@@ -42,9 +44,14 @@ const ScrapeByAsin = () => {
                 ASIN: scrapped_result.asin_infos[0],
                 data: scrapped_result.data,
               }
-              const result: fileProps = await fetchAPI(Config.asin_search, body)
-              if (result.file_url) {
-                setFile(result.file_url)
+              try {
+                const result: fileProps = await fetchAPI(Config.asin_search, body)
+                if (result.file_url) {
+                  setFile(result.file_url)
+                }
+              } catch (error) {
+                notify('Something went wrong', 'error')
+                return
               }
               keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
@@ -53,6 +60,7 @@ const ScrapeByAsin = () => {
             //@ts-ignore
             setTags((prev) => [...prev, { batch, keywords }])
             notify('Scraping Done!', 'success')
+            setCounter(0)
             setCurrentASIN('')
           } catch (error) {
             console.log(error)
@@ -61,7 +69,6 @@ const ScrapeByAsin = () => {
       }
     })()
   }, [status])
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
@@ -123,15 +130,15 @@ const ScrapeByAsin = () => {
               className="bg-green-600 h-2.5 rounded-full"
               style={{
                 width: `${
-                  getPercent(currentASIN, asin.split('\n'))['percent'] -
-                  getPercent(currentASIN, asin.split('\n'))['mean']
+                  getPercent(counter, asin.trim().split('\n'))['percent'] -
+                  getPercent(counter, asin.trim().split('\n'))['mean']
                 }%`,
               }}
             ></div>
 
             <div>
-              {getPercent(currentASIN, asin.split('\n'))['percent'] -
-                getPercent(currentASIN, asin.split('\n'))['mean'] +
+              {getPercent(counter, asin.trim().split('\n'))['percent'] -
+                getPercent(counter, asin.trim().split('\n'))['mean'] +
                 '%'}
             </div>
           </>

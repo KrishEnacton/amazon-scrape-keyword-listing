@@ -10,6 +10,11 @@ export const userAtom = atom({
   default: { phone: '', password: '', token: '' } as any,
 })
 
+export const counterAtom = atom({
+  key: 'counterAtom',
+  default: 0 as number,
+})
+
 export const arrayAtomObject = {
   keywordTags: 'keywordTags',
   ASINTags: 'ASINTags',
