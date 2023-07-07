@@ -19,8 +19,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     e.preventDefault()
     setStatus('scraping')
     try {
-      const keywordList = keyword.trim().split('\n')
-      let keywords: any = []
+      const keywordList = keyword
+        .trim()
+        .split('\n')
+        .filter((a) => a)
       for (const keyword of keywordList) {
         setCurrentKeyword(keyword)
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
@@ -29,16 +31,15 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           keyword: scrapped_result.prefix,
           suggestions: scrapped_result.suggestions,
         }
-        const result: fileProps = await fetchAPI(Config.keyword_search, body)
-        if (result.file_url) {
-          setFile(result.file_url)
+        if (body.keyword && body.suggestions) {
+          const result: fileProps = await fetchAPI(Config.keyword_search, body)
+          if (result.file_url) {
+            setFile(result.file_url)
+          }
+          console.log({ [keyword]: scrapped_result })
         }
-        keywords.push(scrapped_result)
         setCounter((prev) => prev + 1)
-        console.log({ [keyword]: scrapped_result })
       }
-      //@ts-ignore
-      setTags((prev) => [...prev, { batch, keywords }])
       setCurrentKeyword('')
       setStatus('completed')
       setCounter(0)
@@ -107,18 +108,11 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               <div
                 className="bg-green-600 h-2.5 rounded-full"
                 style={{
-                  width: `${
-                    getPercent(counter, keyword.trim().split('\n'))['percent'] -
-                    getPercent(counter, keyword.trim().split('\n'))['mean']
-                  }%`,
+                  width: `${getPercent(counter, keyword.trim().split('\n'))}%`,
                 }}
               ></div>
             </div>
-            <div>
-              {getPercent(counter, keyword.trim().split('\n'))['percent'] -
-                getPercent(counter, keyword.trim().split('\n'))['mean'] +
-                '%'}
-            </div>
+            <div>{getPercent(counter, keyword.trim().split('\n')) + '%'}</div>
           </>
         )}
       </div>

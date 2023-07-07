@@ -32,8 +32,10 @@ const ScrapeByAsin = () => {
         case 'scraping':
           try {
             setStatus('scraping')
-            const asinList = asin.trim().split('\n')
-            let keywords: any = []
+            const asinList = asin
+              .trim()
+              .split('\n')
+              .filter((a) => a)
 
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
@@ -43,22 +45,16 @@ const ScrapeByAsin = () => {
                 ASIN: scrapped_result?.asin_infos?.[0] ?? [],
                 data: scrapped_result?.data || [],
               }
-              try {
+              if (body.ASIN && body.data) {
                 const result: fileProps = await fetchAPI(Config.asin_search, body)
                 if (result.file_url) {
                   setFile(result.file_url)
                 }
-              } catch (error) {
-                notify('Something went wrong', 'error')
-                return
               }
-              keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
               setCounter((prev) => prev + 1)
             }
             setStatus('completed')
-            //@ts-ignore
-            setTags((prev) => [...prev, { batch, keywords }])
             notify('Scraping Done!', 'success')
             setCounter(0)
             setCurrentASIN('')
@@ -127,18 +123,11 @@ const ScrapeByAsin = () => {
             <div
               className="bg-green-600 h-2.5 rounded-full"
               style={{
-                width: `${
-                  getPercent(counter, asin.trim().split('\n'))['percent'] -
-                  getPercent(counter, asin.trim().split('\n'))['mean']
-                }%`,
+                width: `${getPercent(counter, asin.trim().split('\n'))}%`,
               }}
             ></div>
 
-            <div>
-              {getPercent(counter, asin.trim().split('\n'))['percent'] -
-                getPercent(counter, asin.trim().split('\n'))['mean'] +
-                '%'}
-            </div>
+            <div>{getPercent(counter, asin.trim().split('\n')) + '%'}</div>
           </>
         )}
       </div>
