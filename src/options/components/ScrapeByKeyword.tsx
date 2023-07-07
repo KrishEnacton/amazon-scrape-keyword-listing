@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchResultsFromKeyword, getPercent, notify, fetchAPI } from '../../utils'
-import { arrayAtomFamily, arrayAtomObject } from '../recoil'
+import { arrayAtomFamily, arrayAtomObject, counterAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
@@ -10,6 +10,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [keyword, setKeyword] = useState<string>('')
   const [status, setStatus] = useState('ideal')
   const [currentKeyword, setCurrentKeyword] = useState('')
+  const [counter, setCounter] = useRecoilState(counterAtom)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
@@ -18,9 +19,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     e.preventDefault()
     setStatus('scraping')
     try {
-      const keywordList = keyword.split('\n')
+      const keywordList = keyword.trim().split('\n')
       let keywords: any = []
       for (const keyword of keywordList) {
+        setCounter((prev) => prev + 1)
         setCurrentKeyword(keyword)
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
         const body = {
@@ -39,6 +41,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
       setTags((prev) => [...prev, { batch, keywords }])
       setCurrentKeyword('')
       setStatus('completed')
+      setCounter(0)
       notify('Scraping Done!', 'success')
     } catch (error) {
       console.log(error)
@@ -105,15 +108,15 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
                 className="bg-green-600 h-2.5 rounded-full"
                 style={{
                   width: `${
-                    getPercent(currentKeyword, keyword.split('\n'))['percent'] -
-                    getPercent(currentKeyword, keyword.split('\n'))['mean']
+                    getPercent(counter, keyword.trim().split('\n'))['percent'] -
+                    getPercent(counter, keyword.trim().split('\n'))['mean']
                   }%`,
                 }}
               ></div>
             </div>
             <div>
-              {getPercent(currentKeyword, keyword.split('\n'))['percent'] -
-                getPercent(currentKeyword, keyword.split('\n'))['mean'] +
+              {getPercent(counter, keyword.trim().split('\n'))['percent'] -
+                getPercent(counter, keyword.trim().split('\n'))['mean'] +
                 '%'}
             </div>
           </>

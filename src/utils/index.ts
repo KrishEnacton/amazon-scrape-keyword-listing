@@ -92,20 +92,14 @@ export async function getToken({ phone, password }) {
   })
 }
 
-export function getPercent(
-  currentKeyword: string,
-  keywords: string[],
-): { percent: number; mean: number } {
-  if (currentKeyword != '') {
-    const index = keywords.indexOf(currentKeyword)
-    const percent: number = +(((index + 1) / keywords.length) * 100).toFixed(0)
-    return percent < 0
-      ? { percent: 0, mean: 0 }
-      : percent > 100
-      ? { percent: 100, mean: 0 }
-      : { percent, mean: +(100 / keywords.length).toFixed(0) }
-  }
-  return { percent: 0, mean: 0 }
+export function getPercent(counter: number, keywords: string[]): { percent: number; mean: number } {
+  const index = counter
+  const percent: number = +(((index + 1) / keywords.length) * 100).toFixed(0)
+  return percent < 0
+    ? { percent: 0, mean: 0 }
+    : percent > 100
+    ? { percent: 100, mean: 0 }
+    : { percent, mean: +(100 / keywords.length).toFixed(0) }
 }
 
 export function fetchAPI(url: string, body: any): Promise<fileProps> {
