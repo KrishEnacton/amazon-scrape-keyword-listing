@@ -6,7 +6,6 @@ chrome.action.onClicked.addListener(() => {
 
 const tabChange = () => {
   chrome.tabs.query({}, (tabs) => {
-    console.log(tabs)
     if (!tabs.find((tab) => tab.url === OptionsUrl)) {
       chrome.tabs.create({
         url: OptionsUrl,
@@ -18,3 +17,5 @@ const tabChange = () => {
     }
   })
 }
+
+export {}

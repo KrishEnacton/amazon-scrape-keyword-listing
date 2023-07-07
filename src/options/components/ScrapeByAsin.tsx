@@ -52,7 +52,7 @@ const ScrapeByAsin = () => {
             setStatus('completed')
             //@ts-ignore
             setTags((prev) => [...prev, { batch, keywords }])
-            notify('Scraping Done!')
+            notify('Scraping Done!', 'success')
             setCurrentASIN('')
           } catch (error) {
             console.log(error)
@@ -61,12 +61,6 @@ const ScrapeByAsin = () => {
       }
     })()
   }, [status])
-
-  useEffect(() => {
-    chrome.storage.local.get(['user']).then((res: any) => {
-      setUserInfo(res.user)
-    })
-  }, [])
 
   return (
     <div className="flex flex-col items-center justify-center">

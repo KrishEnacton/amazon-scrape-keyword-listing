@@ -39,7 +39,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
       setTags((prev) => [...prev, { batch, keywords }])
       setCurrentKeyword('')
       setStatus('completed')
-      notify('Scraping Done!')
+      notify('Scraping Done!', 'success')
     } catch (error) {
       console.log(error)
     }
@@ -72,6 +72,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               type="text"
               name="keyword-batch"
               id="keyword-batch"
+              required
               onChange={(e) => setBatch(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             />
@@ -81,8 +82,8 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
-                className={`px-4 py-2 bg-green-600 text-white rounded-md ${
-                  status == 'scraping' ? 'px-10 py-3' : ''
+                className={` bg-green-600 text-white rounded-md ${
+                  status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
                 }`}
               >
                 {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
