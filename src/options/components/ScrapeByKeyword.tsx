@@ -22,7 +22,6 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
       const keywordList = keyword.trim().split('\n')
       let keywords: any = []
       for (const keyword of keywordList) {
-        setCounter((prev) => prev + 1)
         setCurrentKeyword(keyword)
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
         const body = {
@@ -35,6 +34,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           setFile(result.file_url)
         }
         keywords.push(scrapped_result)
+        setCounter((prev) => prev + 1)
         console.log({ [keyword]: scrapped_result })
       }
       //@ts-ignore
