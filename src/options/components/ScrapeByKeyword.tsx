@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchResultsFromKeyword, getPercent, notify, fetchAPI } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject } from '../recoil'
@@ -81,7 +81,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
-                className={`px-4 py-2 bg-blue-600 text-white rounded-md ${
+                className={`px-4 py-2 bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : ''
                 }`}
               >

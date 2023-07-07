@@ -1,19 +1,16 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResults, getPercent, fetchAPI, notify } from '../../utils'
-import { arrayAtomFamily, arrayAtomObject } from '../recoil'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { fetchAPI, fetchResults, getPercent, notify } from '../../utils'
+import { arrayAtomFamily, arrayAtomObject, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
 
 const ScrapeByAsin = () => {
   const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
-  const [tabInfo, setTabInfo] = useState<any>(null)
   const [status, setStatus] = useState('ideal')
   const [currentASIN, setCurrentASIN] = useState('')
-  const [userInfo, setUserInfo] = useState<any>(null)
+  const [userInfo, setUserInfo] = useRecoilState(userAtom)
   const [file, setFile] = useState<string>(``)
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
   const [batch, setBatch] = useState<any>()
@@ -21,9 +18,6 @@ const ScrapeByAsin = () => {
   async function startScrapping(e) {
     e.preventDefault()
     try {
-      chrome.storage.local.get(['user']).then((res: any) => {
-        setUserInfo(res.user)
-      })
       setStatus('logging')
       setStatus('scraping')
     } catch (error) {
@@ -35,8 +29,8 @@ const ScrapeByAsin = () => {
     ;(async () => {
       switch (status) {
         case 'scraping':
-          setStatus('scraping')
           try {
+            setStatus('scraping')
             const asinList = asin.split('\n')
             let keywords: any = []
 
@@ -70,7 +64,6 @@ const ScrapeByAsin = () => {
 
   useEffect(() => {
     chrome.storage.local.get(['user']).then((res: any) => {
-      console.log(res)
       setUserInfo(res.user)
     })
   }, [])
@@ -91,7 +84,6 @@ const ScrapeByAsin = () => {
               value={asin}
               rows={5}
               onChange={(e) => setAsin(e.target.value)}
-              onFocus={() => setStatus('ideal')}
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             ></textarea>
           </div>
@@ -104,7 +96,6 @@ const ScrapeByAsin = () => {
               required
               name="keyword-batch"
               id="keyword-batch"
-              onFocus={() => setStatus('ideal')}
               onChange={(e) => setBatch(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             />
@@ -114,8 +105,8 @@ const ScrapeByAsin = () => {
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
-                className={`px-4 py-2 bg-blue-600 text-white rounded-md ${
-                  status == 'scraping' ? 'px-10 py-3' : ''
+                className={`bg-green-600 text-white rounded-md ${
+                  status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
                 }`}
               >
                 {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
@@ -151,7 +142,6 @@ const ScrapeByAsin = () => {
             </div>
           </>
         )}
-        <ToastContainer />
       </div>
     </div>
   )

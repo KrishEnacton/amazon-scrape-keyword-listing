@@ -1,3 +1,5 @@
+import { IconProps } from '../global'
+
 export const SpinnerLoader = ({ className }: IconProps) => {
   return (
     <div className={`animate-fade text-center ${className}`}>
