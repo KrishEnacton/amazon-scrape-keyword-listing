@@ -12,7 +12,7 @@ export default defineManifest({
     '128': 'img/logo-128.png',
   },
   action: {
-    default_popup: 'popup.html',
+    default_title: 'Amazon listing keyboards',
     default_icon: 'img/logo-48.png',
   },
   options_page: 'options.html',
@@ -32,5 +32,5 @@ export default defineManifest({
       matches: [],
     },
   ],
-  permissions: ['storage'],
+  permissions: ['storage', 'tabs', 'activeTab'],
 })

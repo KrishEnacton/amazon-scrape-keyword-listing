@@ -1,3 +1,20 @@
-console.info('chrome-ext template-react-ts background script')
+let OptionsUrl = `chrome-extension://${chrome.runtime.id}/options.html`
 
-export {}
+chrome.action.onClicked.addListener(() => {
+  tabChange()
+})
+
+const tabChange = () => {
+  chrome.tabs.query({}, (tabs) => {
+    console.log(tabs)
+    if (!tabs.find((tab) => tab.url === OptionsUrl)) {
+      chrome.tabs.create({
+        url: OptionsUrl,
+      })
+    } else {
+      chrome.tabs.query({ url: OptionsUrl }, (tabs: any) => {
+        chrome.tabs.update(tabs[0].id, { active: true })
+      })
+    }
+  })
+}
