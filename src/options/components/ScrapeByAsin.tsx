@@ -36,13 +36,12 @@ const ScrapeByAsin = () => {
             let keywords: any = []
 
             for (const _currentASIN of asinList) {
-              setCounter((prev) => prev + 1)
               setCurrentASIN(_currentASIN)
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
               const body = {
                 batch_name: batch,
-                ASIN: scrapped_result.asin_infos[0],
-                data: scrapped_result.data,
+                ASIN: scrapped_result?.asin_infos?.[0] ?? [],
+                data: scrapped_result?.data || [],
               }
               try {
                 const result: fileProps = await fetchAPI(Config.asin_search, body)
@@ -55,6 +54,7 @@ const ScrapeByAsin = () => {
               }
               keywords.push(scrapped_result)
               console.log({ [_currentASIN]: scrapped_result })
+              setCounter((prev) => prev + 1)
             }
             setStatus('completed')
             //@ts-ignore
@@ -102,7 +102,7 @@ const ScrapeByAsin = () => {
             />
           </div>
           <div className="flex justify-center gap-x-4">
-            <div className="my-2">
+            <div>
               <button
                 type="submit"
                 disabled={status == 'scraping' ? true : false}
@@ -114,12 +114,10 @@ const ScrapeByAsin = () => {
               </button>
             </div>
             {status == 'completed' && (
-              <div className=" my-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
-                  <a href={file} download>
-                    Download CSV
-                  </a>
-                </button>
+              <div className="mt-[7.5px]">
+                <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
+                  Download CSV
+                </a>
               </div>
             )}
           </div>
