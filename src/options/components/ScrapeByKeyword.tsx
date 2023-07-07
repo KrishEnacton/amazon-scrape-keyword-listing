@@ -47,7 +47,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="max-w-md px-6 py-8 bg-white shadow-lg rounded-lg w-[600px]">
+      <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
         <h3 className="text-xl font-semibold mb-4">Scraping By Keywords</h3>
         <form onSubmit={startScrapping} className="my-2">
           <div className="mb-4">
@@ -99,13 +99,22 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
         </form>
         {status == 'scraping' && (
           <>
-            <div className="w-full mt-4 bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between">
+            <div className="w-full bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between">
               <div
                 className="bg-green-600 h-2.5 rounded-full"
-                style={{ width: `${getPercent(currentKeyword, keyword.split('\n'))}%` }}
+                style={{
+                  width: `${
+                    getPercent(currentKeyword, keyword.split('\n'))['percent'] -
+                    getPercent(currentKeyword, keyword.split('\n'))['mean']
+                  }%`,
+                }}
               ></div>
             </div>
-            <div>{getPercent(currentKeyword, keyword.split('\n')).toFixed(0) + '%'}</div>
+            <div>
+              {getPercent(currentKeyword, keyword.split('\n'))['percent'] -
+                getPercent(currentKeyword, keyword.split('\n'))['mean'] +
+                '%'}
+            </div>
           </>
         )}
       </div>
