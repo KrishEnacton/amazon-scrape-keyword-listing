@@ -77,7 +77,7 @@ const ScrapeByAsin = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="max-w-md px-6 py-8 bg-white shadow-lg rounded-lg w-[600px]">
+      <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
         <h3 className="text-xl font-semibold mb-4">Scraping By ASIN</h3>
         <form onSubmit={startScrapping} className="my-2">
           <div className="mb-4">
@@ -134,13 +134,21 @@ const ScrapeByAsin = () => {
         </form>
         {status == 'scraping' && (
           <>
-            <div className="w-full mt-4 bg-gray-200 rounded-full h-2.5 flex gap-x-2 justify-between">
-              <div
-                className="bg-blue-600 h-2.5 rounded-full"
-                style={{ width: `${getPercent(currentASIN, asin.split('\n'))}%` }}
-              ></div>
+            <div
+              className="bg-green-600 h-2.5 rounded-full"
+              style={{
+                width: `${
+                  getPercent(currentASIN, asin.split('\n'))['percent'] -
+                  getPercent(currentASIN, asin.split('\n'))['mean']
+                }%`,
+              }}
+            ></div>
+
+            <div>
+              {getPercent(currentASIN, asin.split('\n'))['percent'] -
+                getPercent(currentASIN, asin.split('\n'))['mean'] +
+                '%'}
             </div>
-            <div>{getPercent(currentASIN, asin.split('\n')).toFixed(0) + '%'}</div>
           </>
         )}
         <ToastContainer />
