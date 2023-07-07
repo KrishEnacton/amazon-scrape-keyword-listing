@@ -98,12 +98,12 @@ export function getPercent(
 ): { percent: number; mean: number } {
   if (currentKeyword != '') {
     const index = keywords.indexOf(currentKeyword)
-    const percent: number = ((index + 1) / keywords.length) * 100
+    const percent: number = +(((index + 1) / keywords.length) * 100).toFixed(0)
     return percent < 0
       ? { percent: 0, mean: 0 }
       : percent > 100
       ? { percent: 100, mean: 0 }
-      : { percent, mean: 100 / keywords.length }
+      : { percent, mean: +(100 / keywords.length).toFixed(0) }
   }
   return { percent: 0, mean: 0 }
 }
@@ -129,4 +129,8 @@ export function fetchAPI(url: string, body: any): Promise<fileProps> {
   })
 }
 
-export const notify = (message: string) => toast(message)
+export const notify = (message: string, type?: string) => {
+  if (type == 'error') toast.error(message)
+  if (type == 'success') toast.success(message)
+  if (type == 'warning') toast.warn(message)
+}

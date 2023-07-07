@@ -1,40 +1,53 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import '../tailwindcss/output.css'
 import ScrapeByAsin from './components/ScrapeByAsin'
 import ScrapeByKeyword from './components/ScrapeByKeyword'
 import { ToastContainer } from 'react-toastify'
 import { getToken, notify } from '../utils'
 import 'react-toastify/dist/ReactToastify.css'
+import { SpinnerLoader } from '../utils/Loaders'
 import { userAtom } from './recoil'
-import { useSetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 
 // Login with: 15677676824 / CNv$c8nzLkjb.
 
 function App() {
-  const [phone, setPhone] = useState('')
-  const [password, setPassword] = useState('')
-  const [isKey, setIsKey] = useState < boolean>(false)
-  const  setUserInfo = useSetRecoilState(userAtom)
+  const [isKey, setIsKey] = useState<boolean>(false)
+  const [userInfo, setUserInfo] = useRecoilState(userAtom)
+  const [isSaved, setIsSaved] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   async function formSubmit(e) {
     e.preventDefault()
-    const userInfo: any = await getToken({ phone, password })
-    if (userInfo?.token) {
-      notify('Data Saved!')
-      setUserInfo({
-        phone,
-        password,
-        token: userInfo.token,
-      })
-      chrome.storage.local.set({
-        user: {
-          phone,
-          password,
-          token: userInfo.token,
+    setLoading(true)
+    const result: any = await getToken({ phone: userInfo.phone, password: userInfo.password })
+    if (result?.token) {
+      setLoading(false)
+      notify('Data Saved!', 'success')
+      setUserInfo({ ...userInfo, token: result.token })
+      chrome.storage.local.set(
+        {
+          user: {
+            phone: userInfo.phone,
+            password: userInfo.password,
+            token: result.token,
+          },
         },
-      })
+        () => {
+          setIsSaved(true)
+        },
+      )
+    } else {
+      setLoading(false)
+      notify('No user found!', 'error')
     }
   }
+
+  useEffect(() => {
+    chrome.storage.local.get(['user']).then((res: any) => {
+      setUserInfo(res.user)
+    })
+  }, [])
 
   return (
     <main className="flex items-center justify-center h-screen gap-x-12">
@@ -51,8 +64,9 @@ function App() {
                 name="phone"
                 id="phone"
                 required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={userInfo.phone}
+                onFocus={() => setIsSaved(false)}
+                onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
@@ -65,15 +79,21 @@ function App() {
                 name="password"
                 id="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={userInfo.password}
+                onFocus={() => setIsSaved(false)}
+                onChange={(e) => setUserInfo({ ...userInfo, password: e.target.value })}
                 className="w-full p-2 border border-gray-300 rounded-md"
               />
             </div>
-            <div className="flex justify-center">
-              <button type="submit" className="px-8 py-2 bg-green-600 text-white rounded-md">
-                Save
+            <div className="flex justify-center flex-col">
+              <button
+                type="submit"
+                className="px-8 py-2 bg-green-600 items-center justify-center flex text-white rounded-md"
+                disabled={isSaved}
+              >
+                {loading ? <SpinnerLoader className="w-5 h-5" /> : isSaved ? 'Saved' : 'Save'}
               </button>
+              {isSaved && <div className="text-center text-green-600 my-2">{'Data Saved'}</div>}
             </div>
           </form>
         </div>
@@ -96,7 +116,7 @@ function App() {
         {!isKey && <ScrapeByAsin />}
         {isKey && <ScrapeByKeyword />}
       </div>
-      <ToastContainer/>
+      <ToastContainer />
     </main>
   )
 }

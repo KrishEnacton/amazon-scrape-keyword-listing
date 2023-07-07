@@ -7,7 +7,7 @@ export const arrayAtomFamily = atomFamily({
 
 export const userAtom = atom({
   key: 'userAtom',
-  default: null as any
+  default: { phone: '', password: '', token: '' } as any,
 })
 
 export const arrayAtomObject = {
