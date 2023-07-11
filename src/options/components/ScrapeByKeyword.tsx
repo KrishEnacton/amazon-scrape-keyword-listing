@@ -5,6 +5,7 @@ import { arrayAtomFamily, arrayAtomObject, counterAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
+import CustomModal from '../generic/CustomModal'
 
 const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [keyword, setKeyword] = useState<string>('')
@@ -14,6 +15,15 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
+  const [isOpen, setIsOpen] = useState(false)
+
+  function openModal() {
+    setIsOpen(true)
+  }
+
+  function closeModal() {
+    setIsOpen(false)
+  }
 
   async function startScrapping(e) {
     e.preventDefault()
@@ -91,7 +101,8 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           <div className="flex justify-center gap-x-4">
             <div>
               <button
-                type="submit"
+              type='button'
+              onClick={batch &&  openModal}
                 disabled={status == 'scraping' ? true : false}
                 className={` bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
@@ -99,6 +110,16 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               >
                 {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
               </button>
+              <CustomModal
+                confirm={(e) => {
+                  startScrapping(e)
+                  closeModal()
+                }}
+                closeModal={closeModal}
+                isOpen={isOpen}
+                modal_title={`Start scrapping`}
+                modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
+              />
             </div>
             {status == 'completed' && (
               <div className="mt-[7.5px]">
