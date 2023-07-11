@@ -87,7 +87,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           </div>
           <div className="my-4">
             <label htmlFor="keyword-batch" className="block mb-2">
-              Enter Batch Name: <span className="text-red-500 text-lg">*</span>
+              Enter Group Name: <span className="text-red-500 text-lg">*</span>
             </label>
             <input
               type="text"
