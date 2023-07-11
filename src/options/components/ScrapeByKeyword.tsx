@@ -5,6 +5,7 @@ import { arrayAtomFamily, arrayAtomObject, counterAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
+import CustomModal from '../generic/CustomModal'
 
 const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [keyword, setKeyword] = useState<string>('')
@@ -14,8 +15,17 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
+  const [isOpen, setIsOpen] = useState(false)
 
-  async function startScrapping(e) {
+  function openModal() {
+    setIsOpen(true)
+  }
+
+  function closeModal() {
+    setIsOpen(false)
+  }
+
+  async function startScrapping(e: any) {
     e.preventDefault()
     setStatus('scraping')
     try {
@@ -60,7 +70,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     <div className="flex flex-col items-center justify-center">
       <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
         <h3 className="text-xl font-semibold mb-4">Scraping By Keywords</h3>
-        <form onSubmit={startScrapping} className="my-2">
+        <form className="my-2">
           <div className="mb-4">
             <label htmlFor="asin" className="block mb-2">
               Enter Keywords:
@@ -91,7 +101,8 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           <div className="flex justify-center gap-x-4">
             <div>
               <button
-                type="submit"
+                type="button"
+                onClick={openModal}
                 disabled={status == 'scraping' ? true : false}
                 className={` bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
@@ -99,6 +110,16 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               >
                 {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
               </button>
+              <CustomModal
+                confirm={(e) => {
+                  startScrapping(e)
+                  closeModal()
+                }}
+                closeModal={closeModal}
+                isOpen={isOpen}
+                modal_title={`Start scrapping!`}
+                modal_description={`Are you sure you want to scrapping?`}
+              />
             </div>
             {status == 'completed' && (
               <div className="mt-[7.5px]">
