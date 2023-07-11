@@ -30,7 +30,7 @@ export async function fetchResults({ asin, userInfo }) {
   ).then((res) => res.json())
 
   const scrapped_result = await fetch(
-    `https://www.cijiang.net/cijiang/v2/uj_search/asin_search_many_history/${asin_search_many.data}/?page=1&size=10000&qt=wm`,
+    `https://www.cijiang.net/cijiang/v2/uj_search/asin_search_many_history/${asin_search_many.data}/?page=1&size=1000000&qt=wm`,
     {
       headers: {
         accept: 'application/json, text/plain, */*',

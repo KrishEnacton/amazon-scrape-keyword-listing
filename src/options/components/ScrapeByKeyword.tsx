@@ -32,8 +32,14 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           keyword: scrapped_result.prefix,
           suggestions: scrapped_result.suggestions,
         }
+        const storeBody = {
+          group_name: batch,
+          source: 'amazon_dropdown',
+          query_items: keywordList,
+          keywords: body.suggestions.map((k) => ({ keywords: k.value })),
+        }
         if (body.keyword && body.suggestions) {
-          const result: fileProps = await fetchAPI(Config.keyword_search, body)
+          const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
           if (result.file_url) {
             setFile(result.file_url)
           }

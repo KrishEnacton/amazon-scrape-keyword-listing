@@ -13,7 +13,6 @@ const ScrapeByAsin = () => {
   const [userInfo, setUserInfo] = useRecoilState(userAtom)
   const [counter, setCounter] = useRecoilState(counterAtom)
   const [file, setFile] = useState<string>(``)
-  const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.ASINTags))
   const [batch, setBatch] = useState<any>()
 
   async function startScrapping(e) {
@@ -46,8 +45,27 @@ const ScrapeByAsin = () => {
                 ASIN: scrapped_result?.asin_infos?.[0] ?? [],
                 data: scrapped_result?.data || [],
               }
+              const storeBody = {
+                group_name: batch,
+                source: 'asin_reverse',
+                query_items: asinList,
+                keywords: scrapped_result.data
+                  .map((i) => ({
+                    keywords: i.keyword,
+                    keywords_chinese: i.keywords_dst,
+                    word_count: i.number_of_roots,
+                    monthly_search_volume: i.search_volume,
+                    qty_competing_products: i.results,
+                    competetion_index: i.comp_index,
+                    click_share: i.top3_click_shared,
+                    conversion_share: i.top3_convert_shared,
+                    order_share: i.top3_proportion,
+                    aba_ranking: null,
+                  }))
+                  .splice(0, 10),
+              }
               if (body.ASIN && body.data) {
-                const result: fileProps = await fetchAPI(Config.asin_search, body)
+                const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
                 if (result.file_url) {
                   setFile(result.file_url)
                 }

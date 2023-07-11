@@ -7,4 +7,5 @@ export const Config = {
   },
   asin_search: 'https://keywords.aiamzads.com/api/keyword-store/asin-search',
   keyword_search: 'https://keywords.aiamzads.com/api/keyword-store/amazon-search',
+  keyword_store: 'https://keywords.aiamzads.com/api/keyword-store/keywords',
 }
