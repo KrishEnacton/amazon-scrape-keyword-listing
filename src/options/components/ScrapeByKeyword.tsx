@@ -25,6 +25,14 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     setIsOpen(false)
   }
 
+  function openModal() {
+    setIsOpen(true)
+  }
+
+  function closeModal() {
+    setIsOpen(false)
+  }
+
   async function startScrapping(e: any) {
     e.preventDefault()
     setStatus('scraping')
@@ -102,7 +110,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             <div>
               <button
                 type="button"
-                onClick={openModal}
+                onClick={batch && openModal}
                 disabled={status == 'scraping' ? true : false}
                 className={` bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
@@ -117,8 +125,8 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
                 }}
                 closeModal={closeModal}
                 isOpen={isOpen}
-                modal_title={`Start scrapping!`}
-                modal_description={`Are you sure you want to scrapping?`}
+                modal_title={`Start scrapping`}
+                modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
               />
             </div>
             {status == 'completed' && (

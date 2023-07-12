@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { startTransition, useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchAPI, fetchResults, getPercent, notify } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject, counterAtom, userAtom } from '../recoil'
@@ -130,7 +130,7 @@ const ScrapeByAsin = () => {
             <div>
               <button
                 type="button"
-                onClick={openModal}
+                onClick={batch && openModal}
                 disabled={status == 'scraping' ? true : false}
                 className={`bg-green-600 text-white rounded-md ${
                   status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
@@ -145,8 +145,8 @@ const ScrapeByAsin = () => {
                 }}
                 closeModal={closeModal}
                 isOpen={isOpen}
-                modal_title={`Start scrapping!`}
-                modal_description={`Are you sure you want to scrapping?`}
+                modal_title={`Start scrapping`}
+                modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
               />
             </div>
             {status == 'completed' && (
