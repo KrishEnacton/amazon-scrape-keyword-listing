@@ -12,10 +12,14 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [status, setStatus] = useState('ideal')
   const [currentKeyword, setCurrentKeyword] = useState('')
   const [counter, setCounter] = useRecoilState(counterAtom)
-  const [tags, setTags] = useRecoilState(arrayAtomFamily(arrayAtomObject.keywordTags))
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
   const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState<{ fetch?: boolean; store?: boolean; error?: boolean }>({
+    fetch: false,
+    store: false,
+    error: false,
+  })
 
   function openModal() {
     setIsOpen(true)
@@ -24,15 +28,6 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
   function closeModal() {
     setIsOpen(false)
   }
-
-  function openModal() {
-    setIsOpen(true)
-  }
-
-  function closeModal() {
-    setIsOpen(false)
-  }
-
   async function startScrapping(e: any) {
     e.preventDefault()
     setStatus('scraping')
@@ -41,29 +36,38 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
         .trim()
         .split('\n')
         .filter((a) => a)
-      console.log({ keywordList })
       for (const keyword of keywordList) {
         setCurrentKeyword(keyword)
+        setLoading({ fetch: true })
         const scrapped_result = await fetchResultsFromKeyword({ keyword })
-        const body = {
-          batch_name: batch,
-          keyword: scrapped_result.prefix,
-          suggestions: scrapped_result.suggestions,
+        setLoading({ fetch: false })
+        if (!scrapped_result) {
+          setLoading({ error: true })
+          // notify('Something went wrong', 'error')
         }
-        const storeBody = {
-          group_name: batch,
-          source: 'amazon_dropdown',
-          query_items: keywordList,
-          keywords: body.suggestions.map((k) => ({ keywords: k.value })),
-        }
-        if (body.keyword && body.suggestions) {
-          const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
-          if (result.file_url) {
-            setFile(result.file_url)
+        if (scrapped_result) {
+          const body = {
+            batch_name: batch,
+            keyword: scrapped_result.prefix,
+            suggestions: scrapped_result.suggestions,
+          }
+          const storeBody = {
+            group_name: batch,
+            source: 'amazon_dropdown',
+            query_items: keywordList,
+            keywords: body.suggestions.map((k) => ({ keywords: k.value })),
+          }
+          if (body.keyword && body.suggestions) {
+            setLoading({ store: true })
+            const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
+            if (result.file_url) {
+              setLoading({ store: false })
+              setFile(result.file_url)
+            }
           }
           console.log({ [keyword]: scrapped_result })
+          setCounter((prev) => prev + 1)
         }
-        setCounter((prev) => prev + 1)
       }
       setCurrentKeyword('')
       setStatus('completed')
@@ -106,36 +110,47 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             />
           </div>
-          <div className="flex justify-center gap-x-4">
+          <div className="flex flex-col items-center">
             <div>
-              <button
-                type="button"
-                onClick={batch && openModal}
-                disabled={status == 'scraping' ? true : false}
-                className={` bg-green-600 text-white rounded-md ${
-                  status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
-                }`}
-              >
-                {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
-              </button>
-              <CustomModal
-                confirm={(e) => {
-                  startScrapping(e)
-                  closeModal()
-                }}
-                closeModal={closeModal}
-                isOpen={isOpen}
-                modal_title={`Start scrapping`}
-                modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
-              />
+              {loading.fetch
+                ? `Fetching keywords for ${currentKeyword}`
+                : loading.error
+                ? `Fetching keywords failed for ${currentKeyword}, skipping...`
+                : loading.store
+                ? `Storing keywords for ${currentKeyword}`
+                : ``}
             </div>
-            {status == 'completed' && (
-              <div className="mt-[7.5px]">
-                <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
-                  Download CSV
-                </a>
+            <div className="flex justify-center gap-x-4">
+              <div>
+                <button
+                  type="button"
+                  onClick={batch && openModal}
+                  disabled={status == 'scraping' ? true : false}
+                  className={` bg-green-600 text-white rounded-md ${
+                    status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
+                  }`}
+                >
+                  {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
+                </button>
+                <CustomModal
+                  confirm={(e) => {
+                    startScrapping(e)
+                    closeModal()
+                  }}
+                  closeModal={closeModal}
+                  isOpen={isOpen}
+                  modal_title={`Start scrapping`}
+                  modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
+                />
               </div>
-            )}
+              {status == 'completed' && (
+                <div className="mt-[7.5px]">
+                  <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
+                    Download CSV
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </form>
         {status == 'scraping' && (

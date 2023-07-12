@@ -13,6 +13,11 @@ const ScrapeByAsin = () => {
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useRecoilState(userAtom)
   const [counter, setCounter] = useRecoilState(counterAtom)
+  const [loading, setLoading] = useState<{ fetch?: boolean; store?: boolean; error?: boolean }>({
+    fetch: false,
+    store: false,
+    error: false,
+  })
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
   const [isOpen, setIsOpen] = useState(false)
@@ -45,39 +50,48 @@ const ScrapeByAsin = () => {
               .trim()
               .split('\n')
               .filter((a) => a)
-            console.log({ asinList })
 
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
+              setLoading({ fetch: true })
               const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
-              const body = {
-                batch_name: batch,
-                ASIN: scrapped_result?.asin_infos?.[0] ?? [],
-                data: scrapped_result?.data || [],
+              setLoading({ fetch: false })
+              if (!scrapped_result) {
+                setLoading({ error: true })
               }
-              const storeBody = {
-                group_name: batch,
-                source: 'asin_reverse',
-                query_items: asinList,
-                keywords: scrapped_result.data
-                  .map((i) => ({
-                    keywords: i.keyword,
-                    keywords_chinese: i.keywords_dst,
-                    word_count: i.number_of_roots,
-                    monthly_search_volume: i.search_volume,
-                    qty_competing_products: i.results,
-                    competetion_index: i.comp_index,
-                    click_share: i.top3_click_shared,
-                    conversion_share: i.top3_convert_shared,
-                    order_share: i.top3_proportion,
-                    aba_ranking: null,
-                  }))
-                  .splice(0, 10),
-              }
-              if (body.ASIN && body.data) {
-                const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
-                if (result.file_url) {
-                  setFile(result.file_url)
+              if (scrapped_result) {
+                setLoading({ fetch: false })
+                const body = {
+                  batch_name: batch,
+                  ASIN: scrapped_result?.asin_infos?.[0] ?? [],
+                  data: scrapped_result?.data || [],
+                }
+                const storeBody = {
+                  group_name: batch,
+                  source: 'asin_reverse',
+                  query_items: asinList,
+                  keywords: scrapped_result.data
+                    .map((i) => ({
+                      keywords: i.keyword,
+                      keywords_chinese: i.keywords_dst,
+                      word_count: i.number_of_roots,
+                      monthly_search_volume: i.search_volume,
+                      qty_competing_products: i.results,
+                      competetion_index: i.comp_index,
+                      click_share: i.top3_click_shared,
+                      conversion_share: i.top3_convert_shared,
+                      order_share: i.top3_proportion,
+                      aba_ranking: null,
+                    }))
+                    .splice(0, 10),
+                }
+                if (body.ASIN && body.data) {
+                  setLoading({ store: true })
+                  const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
+                  if (result.file_url) {
+                    setLoading({ store: false })
+                    setFile(result.file_url)
+                  }
                 }
               }
               console.log({ [_currentASIN]: scrapped_result })
@@ -85,6 +99,7 @@ const ScrapeByAsin = () => {
             }
             setStatus('completed')
             notify('Scraping Done!', 'success')
+            setLoading({ error: false })
             setCounter(0)
             setCurrentASIN('')
           } catch (error) {
@@ -126,36 +141,47 @@ const ScrapeByAsin = () => {
               className="w-full p-2 border border-gray-300 rounded-md resize-none"
             />
           </div>
-          <div className="flex justify-center gap-x-4">
+          <div className="flex justify-center items-center gap-y-4 flex-col">
             <div>
-              <button
-                type="button"
-                onClick={batch && openModal}
-                disabled={status == 'scraping' ? true : false}
-                className={`bg-green-600 text-white rounded-md ${
-                  status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
-                }`}
-              >
-                {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
-              </button>
-              <CustomModal
-                confirm={(e) => {
-                  startScrapping(e)
-                  closeModal()
-                }}
-                closeModal={closeModal}
-                isOpen={isOpen}
-                modal_title={`Start scrapping`}
-                modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
-              />
+              {loading.fetch
+                ? `Fetching keywords for ${currentASIN}`
+                : loading.error
+                ? `Fetching keywords failed for ${currentASIN}, skipping...`
+                : loading.store
+                ? `Storing keywords for ${currentASIN}`
+                : ``}
             </div>
-            {status == 'completed' && (
-              <div className="mt-[7.5px]">
-                <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
-                  Download CSV
-                </a>
+            <div className="flex gap-x-4">
+              <div>
+                <button
+                  type="button"
+                  onClick={batch && openModal}
+                  disabled={status == 'scraping' ? true : false}
+                  className={`bg-green-600 text-white rounded-md ${
+                    status == 'scraping' ? 'px-10 py-3' : 'px-4 py-2'
+                  }`}
+                >
+                  {status == 'scraping' ? <SpinnerLoader className="h-4 w-4" /> : 'Start Scraping'}
+                </button>
+                <CustomModal
+                  confirm={(e) => {
+                    startScrapping(e)
+                    closeModal()
+                  }}
+                  closeModal={closeModal}
+                  isOpen={isOpen}
+                  modal_title={`Start scrapping`}
+                  modal_description={`This will save the searched keywords to the Keywords Lab ${batch}, and may overwrite your current data, are you sure to continue?`}
+                />
               </div>
-            )}
+              {status == 'completed' && (
+                <div className="mt-[7.5px]">
+                  <a href={file} download className="px-4 py-3.5 bg-blue-600 text-white rounded-md">
+                    Download CSV
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </form>
         {status == 'scraping' && (
