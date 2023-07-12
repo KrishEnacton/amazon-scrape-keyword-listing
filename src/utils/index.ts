@@ -147,3 +147,11 @@ export function generateRandomString(length: number) {
 
   return randomString
 }
+
+export const sleep = (time: number) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(true)
+    }, time)
+  })
+}

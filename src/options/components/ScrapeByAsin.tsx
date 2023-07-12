@@ -18,6 +18,10 @@ const ScrapeByAsin = () => {
     store: false,
     error: false,
   })
+  const asinList = asin
+    .trim()
+    .split('\n')
+    .filter((a) => a)
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
   const [isOpen, setIsOpen] = useState(false)
@@ -86,7 +90,7 @@ const ScrapeByAsin = () => {
                     }))
                     .splice(0, 10),
                 }
-                if (body.ASIN && body.data) {
+                if (body.ASIN && body.data && storeBody.keywords.length > 0) {
                   setLoading({ store: true })
                   const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
                   if (result.file_url) {
@@ -144,13 +148,21 @@ const ScrapeByAsin = () => {
           </div>
           <div className="flex justify-center items-center gap-y-4 flex-col">
             <div>
-              {loading.fetch
-                ? `Fetching keywords for ${currentASIN}`
-                : loading.error
-                ? `Fetching keywords failed for ${currentASIN}, skipping...`
-                : loading.store
-                ? `Storing keywords for ${currentASIN}`
-                : ``}
+              {loading.fetch ? (
+                <span>
+                  ASIN searching:<span className="font-bold">{` ${currentASIN}`}</span>
+                  {` (${asinList.indexOf(currentASIN) + 1} / ${asinList.length})`}
+                </span>
+              ) : loading.error ? (
+                `Fetching keywords failed for ${currentASIN}, skipping...`
+              ) : loading.store ? (
+                <span>
+                  ASIN storing:<span className="font-bold">{` ${currentASIN}`}</span>
+                  {` (${asinList.indexOf(currentASIN) + 1} / ${asinList.length})`}
+                </span>
+              ) : (
+                ``
+              )}
             </div>
             <div className="flex gap-x-4">
               <div>

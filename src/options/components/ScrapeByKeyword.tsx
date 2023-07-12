@@ -6,6 +6,7 @@ import {
   notify,
   fetchAPI,
   generateRandomString,
+  sleep,
 } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject, counterAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
@@ -26,6 +27,10 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     store: false,
     error: false,
   })
+  const keywordList = keyword
+    .trim()
+    .split('\n')
+    .filter((a) => a)
 
   function openModal() {
     setIsOpen(true)
@@ -64,8 +69,9 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             batch_id: generateRandomString(14),
             keywords: body.suggestions.map((k) => ({ keywords: k.value })),
           }
-          if (body.keyword && body.suggestions) {
+          if (body.keyword && body.suggestions && storeBody.keywords.length > 0) {
             setLoading({ store: true })
+            await sleep(2000)
             const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
             if (result.file_url) {
               setLoading({ store: false })
@@ -119,13 +125,21 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
           </div>
           <div className="flex flex-col items-center">
             <div>
-              {loading.fetch
-                ? `Fetching keywords for ${currentKeyword}`
-                : loading.error
-                ? `Fetching keywords failed for ${currentKeyword}, skipping...`
-                : loading.store
-                ? `Storing keywords for ${currentKeyword}`
-                : ``}
+              {loading.fetch ? (
+                <span>
+                  Keyword searching:<span className="font-bold">{` ${currentKeyword}`}</span>
+                  {` (${keywordList.indexOf(currentKeyword) + 1} / ${keywordList.length})`}
+                </span>
+              ) : loading.error ? (
+                `Fetching keywords failed for ${currentKeyword}, skipping...`
+              ) : loading.store ? (
+                <span>
+                  Keyword storing:<span className="font-bold">{` ${currentKeyword}`}</span>
+                  {` (${keywordList.indexOf(currentKeyword) + 1} / ${keywordList.length})`}
+                </span>
+              ) : (
+                ``
+              )}
             </div>
             <div className="flex justify-center gap-x-4">
               <div>
