@@ -40,6 +40,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
     setIsOpen(false)
   }
   async function startScrapping(e: any) {
+    let batch_id = generateRandomString(14)
     e.preventDefault()
     setStatus('scraping')
     try {
@@ -66,7 +67,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             group_name: batch,
             source: 'amazon_dropdown',
             query_items: keywordList,
-            batch_id: generateRandomString(14),
+            batch_id: batch_id,
             keywords: body.suggestions.map((k) => ({ keywords: k.value })),
           }
           if (body.keyword && body.suggestions && storeBody.keywords.length > 0) {

@@ -50,6 +50,7 @@ const ScrapeByAsin = () => {
         case 'scraping':
           try {
             setStatus('scraping')
+            let batch_id = generateRandomString(14)
             const asinList = asin
               .trim()
               .split('\n')
@@ -74,7 +75,7 @@ const ScrapeByAsin = () => {
                   group_name: batch,
                   source: 'asin_reverse',
                   query_items: asinList,
-                  batch_id: generateRandomString(14),
+                  batch_id: batch_id,
                   keywords: scrapped_result.data
                     .map((i) => ({
                       keywords: i.keyword,
