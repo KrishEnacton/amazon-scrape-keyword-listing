@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchResultsFromKeyword, getPercent, notify, fetchAPI } from '../../utils'
+import {
+  fetchResultsFromKeyword,
+  getPercent,
+  notify,
+  fetchAPI,
+  generateRandomString,
+} from '../../utils'
 import { arrayAtomFamily, arrayAtomObject, counterAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
@@ -55,6 +61,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             group_name: batch,
             source: 'amazon_dropdown',
             query_items: keywordList,
+            batch_id: generateRandomString(14),
             keywords: body.suggestions.map((k) => ({ keywords: k.value })),
           }
           if (body.keyword && body.suggestions) {

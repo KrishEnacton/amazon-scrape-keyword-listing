@@ -1,6 +1,6 @@
 import React, { startTransition, useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchAPI, fetchResults, getPercent, notify } from '../../utils'
+import { fetchAPI, fetchResults, generateRandomString, getPercent, notify } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject, counterAtom, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
@@ -70,6 +70,7 @@ const ScrapeByAsin = () => {
                   group_name: batch,
                   source: 'asin_reverse',
                   query_items: asinList,
+                  batch_id: generateRandomString(14),
                   keywords: scrapped_result.data
                     .map((i) => ({
                       keywords: i.keyword,
