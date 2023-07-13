@@ -49,38 +49,43 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
         .split('\n')
         .filter((a) => a)
       for (const keyword of keywordList) {
-        setCurrentKeyword(keyword)
-        setLoading({ fetch: true })
-        const scrapped_result = await fetchResultsFromKeyword({ keyword })
-        setLoading({ fetch: false })
-        if (!scrapped_result) {
-          setLoading({ error: true })
-          // notify('Something went wrong', 'error')
-        }
-        if (scrapped_result) {
-          const body = {
-            batch_name: batch,
-            keyword: scrapped_result.prefix,
-            suggestions: scrapped_result.suggestions,
+        try {
+          setCurrentKeyword(keyword)
+          setLoading({ fetch: true })
+          const scrapped_result = await fetchResultsFromKeyword({ keyword })
+          setLoading({ fetch: false })
+          if (!scrapped_result) {
+            setLoading({ error: true })
+            // notify('Something went wrong', 'error')
           }
-          const storeBody = {
-            group_name: batch,
-            source: 'amazon_dropdown',
-            query_items: keywordList,
-            batch_id: batch_id,
-            keywords: body.suggestions.map((k) => ({ keywords: k.value })),
-          }
-          if (body.keyword && body.suggestions && storeBody.keywords.length > 0) {
-            setLoading({ store: true })
-            await sleep(2000)
-            const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
-            if (result.file_url) {
-              setLoading({ store: false })
-              setFile(result.file_url)
+          if (scrapped_result) {
+            const body = {
+              batch_name: batch,
+              keyword: scrapped_result.prefix,
+              suggestions: scrapped_result.suggestions,
             }
+            const storeBody = {
+              group_name: batch,
+              source: 'amazon_dropdown',
+              query_items: keywordList,
+              batch_id: batch_id,
+              keywords: body.suggestions.map((k) => ({ keywords: k.value })),
+            }
+            if (body.keyword && body.suggestions && storeBody.keywords.length > 0) {
+              setLoading({ store: true })
+              await sleep(2000)
+              const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
+              if (result.file_url) {
+                setLoading({ store: false })
+                setFile(result.file_url)
+              }
+            }
+            console.log({ [keyword]: scrapped_result })
+            setCounter((prev) => prev + 1)
           }
-          console.log({ [keyword]: scrapped_result })
-          setCounter((prev) => prev + 1)
+        } catch (error) {
+          console.log(error)
+          continue;
         }
       }
       setCurrentKeyword('')

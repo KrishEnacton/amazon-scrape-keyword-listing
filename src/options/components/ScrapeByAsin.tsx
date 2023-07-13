@@ -1,6 +1,6 @@
 import React, { startTransition, useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
-import { fetchAPI, fetchResults, generateRandomString, getPercent, notify } from '../../utils'
+import { arrayChunk, fetchAPI, fetchResults, generateRandomString, getPercent, notify } from '../../utils'
 import { arrayAtomFamily, arrayAtomObject, counterAtom, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
@@ -13,6 +13,7 @@ const ScrapeByAsin = () => {
   const [currentASIN, setCurrentASIN] = useState('')
   const [userInfo, setUserInfo] = useRecoilState(userAtom)
   const [counter, setCounter] = useRecoilState(counterAtom)
+  const [scrappingProgressCount, setScrappingProgressCount] = useState(0)
   const [loading, setLoading] = useState<{ fetch?: boolean; store?: boolean; error?: boolean }>({
     fetch: false,
     store: false,
@@ -25,6 +26,8 @@ const ScrapeByAsin = () => {
   const [file, setFile] = useState<string>(``)
   const [batch, setBatch] = useState<any>()
   const [isOpen, setIsOpen] = useState(false)
+
+  const CHUNK_SIZE = 3
 
   function openModal() {
     setIsOpen(true)
@@ -56,52 +59,59 @@ const ScrapeByAsin = () => {
               .split('\n')
               .filter((a) => a)
 
-            for (const _currentASIN of asinList) {
-              setCurrentASIN(_currentASIN)
-              setLoading({ fetch: true })
-              const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
-              setLoading({ fetch: false })
-              if (!scrapped_result) {
-                setLoading({ error: true })
-              }
-              if (scrapped_result) {
+            const asinChunkList = arrayChunk(asinList,CHUNK_SIZE).map(asinChunkArr => asinChunkArr.join(','));
+
+            for (const _currentASIN of asinChunkList) {
+              try {
+                setCurrentASIN(_currentASIN)
+                setLoading({ fetch: true })
+                const scrapped_result = await fetchResults({ asin: _currentASIN.split(','), userInfo })
                 setLoading({ fetch: false })
-                const body = {
-                  batch_name: batch,
-                  ASIN: scrapped_result?.asin_infos?.[0] ?? [],
-                  data: scrapped_result?.data || [],
+                if (!scrapped_result) {
+                  setLoading({ error: true })
                 }
-                const storeBody = {
-                  group_name: batch,
-                  source: 'asin_reverse',
-                  query_items: asinList,
-                  batch_id: batch_id,
-                  keywords: scrapped_result.data
-                    .map((i) => ({
-                      keywords: i.keyword,
-                      keywords_chinese: i.keywords_dst,
-                      word_count: i.number_of_roots,
-                      monthly_search_volume: i.search_volume,
-                      qty_competing_products: i.results,
-                      competetion_index: i.comp_index,
-                      click_share: i.top3_click_shared,
-                      conversion_share: i.top3_convert_shared,
-                      order_share: i.top3_proportion,
-                      aba_ranking: null,
-                    }))
-                    .splice(0, 10),
-                }
-                if (body.ASIN && body.data && storeBody.keywords.length > 0) {
-                  setLoading({ store: true })
-                  const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
-                  if (result.file_url) {
-                    setLoading({ store: false })
-                    setFile(result.file_url)
+                if (scrapped_result) {
+                  setLoading({ fetch: false })
+                  const body = {
+                    batch_name: batch,
+                    ASIN: scrapped_result?.asin_infos?.[0] ?? [],
+                    data: scrapped_result?.data || [],
+                  }
+                  const storeBody = {
+                    group_name: batch,
+                    source: 'asin_reverse',
+                    query_items: asinList,
+                    batch_id: batch_id,
+                    keywords: scrapped_result.data
+                      .map((i) => ({
+                        keywords: i.keyword,
+                        keywords_chinese: i.keywords_dst,
+                        word_count: i.number_of_roots,
+                        monthly_search_volume: i.search_volume,
+                        qty_competing_products: i.results,
+                        competetion_index: i.comp_index,
+                        click_share: i.top3_click_shared,
+                        conversion_share: i.top3_convert_shared,
+                        order_share: i.top3_proportion,
+                        aba_ranking: null,
+                      })),
+                  }
+                  if (body.ASIN && body.data && storeBody.keywords.length > 0) {
+                    setLoading({ store: true })
+                    const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
+                    if (result.file_url) {
+                      setLoading({ store: false })
+                      setFile(result.file_url)
+                    }
                   }
                 }
+                setCounter((prev) => prev + CHUNK_SIZE)
+
+                setScrappingProgressCount((asinChunkList.indexOf(_currentASIN) + 1) * CHUNK_SIZE)
+              } catch(e) {
+                console.log(e)
+                continue;
               }
-              console.log({ [_currentASIN]: scrapped_result })
-              setCounter((prev) => prev + 1)
             }
             setStatus('completed')
             notify('Scraping Done!', 'success')
@@ -152,14 +162,14 @@ const ScrapeByAsin = () => {
               {loading.fetch ? (
                 <span>
                   ASIN searching:<span className="font-bold">{` ${currentASIN}`}</span>
-                  {` (${asinList.indexOf(currentASIN) + 1} / ${asinList.length})`}
+                  {` (${scrappingProgressCount} / ${asinList.length})`}
                 </span>
               ) : loading.error ? (
                 `Fetching keywords failed for ${currentASIN}, skipping...`
               ) : loading.store ? (
                 <span>
                   ASIN storing:<span className="font-bold">{` ${currentASIN}`}</span>
-                  {` (${asinList.indexOf(currentASIN) + 1} / ${asinList.length})`}
+                  {` (${scrappingProgressCount} / ${asinList.length})`}
                 </span>
               ) : (
                 ``

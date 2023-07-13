@@ -23,7 +23,7 @@ export async function fetchResults({ asin, userInfo }): Promise<any> {
           'content-type': 'application/json',
           token: `${userInfo.token}`,
         },
-        body: `{"asins":["${asin}"],"marketplace":"US"}`,
+        body: `{"asins":${JSON.stringify(asin)},"marketplace":"US"}`,
         method: 'POST',
         mode: 'cors',
         credentials: 'omit',
@@ -155,3 +155,12 @@ export const sleep = (time: number) => {
     }, time)
   })
 }
+
+
+export const arrayChunk = (input, size) => {
+  return input.reduce((arr, item, idx) => {
+    return idx % size === 0
+      ? [...arr, [item]]
+      : [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
+  }, []);
+};
