@@ -49,6 +49,7 @@ export async function fetchResults({ asin, userInfo }): Promise<any> {
       ).then((res) => res.json())
       resolve(scrapped_result)
     } else {
+      notify(`Scrapping ${JSON.stringify(asin)} failed. Error: ${asin_search_many.message}`,'error');
       resolve(false)
     }
   })

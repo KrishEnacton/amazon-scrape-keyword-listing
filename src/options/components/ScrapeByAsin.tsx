@@ -114,7 +114,7 @@ const ScrapeByAsin = () => {
               }
             }
             setStatus('completed')
-            notify('Scraping Done!', 'success')
+            notify('Scraping Finished!', 'success')
             setLoading({ error: false })
             setCounter(0)
             setCurrentASIN('')
