@@ -73,7 +73,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             }
             if (body.keyword && body.suggestions && storeBody.keywords.length > 0) {
               setLoading({ store: true })
-              await sleep(2000)
+              // await sleep(2000)
               const result: fileProps = await fetchAPI(Config.keyword_store, storeBody)
               if (result.file_url) {
                 setLoading({ store: false })
