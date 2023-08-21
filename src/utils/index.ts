@@ -155,3 +155,27 @@ export const sleep = (time: number) => {
     }, time)
   })
 }
+
+export function isLoggedIn() {
+  return new Promise((resolve) => {
+    fetch(`https://keywords.aiamzads.com/dashboard`)
+      .then((res) => {
+        return res
+      })
+      .then((d) => {
+        resolve(d)
+      })
+  }) as Promise<any>
+}
+
+export function getCreds() {
+  return new Promise((resolve) => {
+    fetch(`https://keywords.aiamzads.com/api/keyword-store/cijiang-credentials`)
+      .then((res) => {
+        return res.json()
+      })
+      .then((d) => {
+        resolve(d)
+      })
+  }) as Promise<any>
+}
