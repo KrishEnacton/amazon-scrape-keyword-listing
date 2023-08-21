@@ -1,18 +1,22 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { getCreds, getToken, isLoggedIn } from '../../utils'
 import { useNavigate } from 'react-router-dom'
+import FullScreenLoader from '../generic/FullScreenLoader'
 
 export const Login = () => {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
   useLayoutEffect(() => {
     chrome.storage.local.get('user').then((res) => {
-      console.log(res)
       if (Object.values(res).length == 0) {
         isLoggedIn().then((res) => {
+          setLoading(true)
+          console.log(res, 'res')
           if (res.redirect === true) {
             getCreds().then((res) => {
               const creds = res.credentials
               getToken({ phone: creds?.user_name, password: creds?.password }).then((res) => {
+                setLoading(false)
                 navigate('/asin')
                 chrome.storage.local.set({
                   user: {
@@ -22,11 +26,19 @@ export const Login = () => {
                 })
               })
             })
-          }
+          } else navigate('/asin')
         })
       }
     })
   })
+
+  if (loading) {
+    return (
+      <FullScreenLoader
+        className={'flex h-screen w-screen justify-center items-center text-red-300'}
+      />
+    )
+  }
   return (
     <div className="w-2/6 h-screen   my-16 items-center justify-center gap-x-12 mx-auto">
       <div className="flex flex-col rounded-md m-6">
