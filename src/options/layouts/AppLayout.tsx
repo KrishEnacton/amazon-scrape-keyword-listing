@@ -4,7 +4,7 @@ import FullScreenLoader from '../generic/FullScreenLoader'
 import { useRecoilState } from 'recoil'
 import { booleanAtomFamily } from '../recoil'
 
-export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isValidate, setIsValidate] = useRecoilState(booleanAtomFamily('isValid'))
   const [loading, setLoading] = useState(false)
 
@@ -36,4 +36,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       </div>
     )
   }
+  return <div></div>
 }
+
+export default AppLayout

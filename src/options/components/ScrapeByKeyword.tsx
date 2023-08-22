@@ -13,7 +13,7 @@ import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
 import CustomModal from '../generic/CustomModal'
-import { AppLayout } from '../layouts/AppLayout'
+import AppLayout from '../layouts/AppLayout'
 import CustomSelect from '../generic/CusomSelect'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 
