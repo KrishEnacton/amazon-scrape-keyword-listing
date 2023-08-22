@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import '../tailwindcss/output.css'
 import ScrapeByAsin from './components/ScrapeByAsin'
 import ScrapeByKeyword from './components/ScrapeByKeyword'
