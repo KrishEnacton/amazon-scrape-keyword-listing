@@ -5,6 +5,11 @@ export const arrayAtomFamily = atomFamily({
   default: [] as [],
 })
 
+export const booleanAtomFamily = atomFamily({
+  key: 'booleanAtomFamily',
+  default: false as boolean,
+})
+
 export const userAtom = atom({
   key: 'userAtom',
   default: { phone: '', password: '', token: '' } as any,

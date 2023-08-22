@@ -1,12 +1,14 @@
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Login } from '../components/Login'
 import FullScreenLoader from '../generic/FullScreenLoader'
+import { useRecoilState } from 'recoil'
+import { booleanAtomFamily } from '../recoil'
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isValidate, setIsValidate] = useState(false)
+  const [isValidate, setIsValidate] = useRecoilState(booleanAtomFamily('isValid'))
   const [loading, setLoading] = useState(false)
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setLoading(true)
     chrome.storage.local.get('user').then((res) => {
       if (res?.user && Object.values(res?.user).length > 0) {
@@ -15,6 +17,8 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       }
     })
   }, [])
+
+  console.log(isValidate, 'valid')
   if (loading) {
     return (
       <FullScreenLoader
@@ -26,9 +30,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   if (isValidate) {
     return <div className="py-4">{children}</div>
   }
-  return (
-    <div>
-      <Login />
-    </div>
-  )
+  if (!isValidate) {
+    return (
+      <div>
+        <Login />
+      </div>
+    )
+  }
 }
