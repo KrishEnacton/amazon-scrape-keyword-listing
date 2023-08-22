@@ -1,8 +1,7 @@
-import AsyncSelect from 'react-select/async'
-
+import AsyncCreatableSelect from 'react-select/async-creatable'
 const filterColors = async (inputValue: string) => {
   const result = await fetch(
-    `https://keywords.aiamzads.com/api/keyword-store/keyword-groups?q=test`,
+    `https://keywords.aiamzads.com/api/keyword-store/keyword-groups?q=${inputValue}`,
   )
     .then((res) => {
       if (res.ok) return res.json()
@@ -24,11 +23,14 @@ const promiseOptions = (inputValue: string) =>
   }) as any
 const CustomSelect: React.FC<{ handleSelectChange: any }> = ({ handleSelectChange }) => {
   return (
-    <AsyncSelect
+    <AsyncCreatableSelect
       cacheOptions
       defaultOptions
       loadOptions={promiseOptions}
       onChange={handleSelectChange}
+      onCreateOption={(option) => {
+        promiseOptions(option)
+      }}
     />
   )
 }
