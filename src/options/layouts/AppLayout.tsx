@@ -10,7 +10,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     setLoading(true)
     chrome.storage.local.get('user').then((res) => {
       if (res?.user && Object.values(res?.user).length > 0) {
-        setIsValidate(true)
+        setLoading(false)
         setIsValidate(true)
       }
     })
