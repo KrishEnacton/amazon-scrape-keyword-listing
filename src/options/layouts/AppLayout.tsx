@@ -18,7 +18,6 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     })
   }, [])
 
-  console.log(isValidate, 'valid')
   if (loading) {
     return (
       <FullScreenLoader
