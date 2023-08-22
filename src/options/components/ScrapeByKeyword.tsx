@@ -15,7 +15,7 @@ import { fileProps } from '../../global'
 import CustomModal from '../generic/CustomModal'
 import { AppLayout } from '../layouts/AppLayout'
 import CustomSelect from '../generic/CusomSelect'
-import { NavBarLayout } from '../layouts/NavBarLayout'
+import { DashboardLayout } from '../layouts/DashboardLayout'
 
 const ScrapeByKeyword: React.FC<{}> = ({}) => {
   const [keyword, setKeyword] = useState<string>('')
@@ -101,7 +101,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
 
   return (
     <AppLayout>
-      <NavBarLayout>
+      <DashboardLayout>
         <div className="flex flex-col items-center mt-10 justify-center">
           <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
             <h3 className="text-xl font-semibold mb-4">Scraping By Keywords</h3>
@@ -200,7 +200,7 @@ const ScrapeByKeyword: React.FC<{}> = ({}) => {
             )}
           </div>
         </div>
-      </NavBarLayout>
+      </DashboardLayout>
     </AppLayout>
   )
 }

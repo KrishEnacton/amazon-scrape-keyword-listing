@@ -8,10 +8,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   useLayoutEffect(() => {
     setLoading(true)
-
     chrome.storage.local.get('user').then((res) => {
       if (res?.user && Object.values(res?.user).length > 0) {
-        setLoading(false)
+        setIsValidate(true)
         setIsValidate(true)
       }
     })
@@ -24,7 +23,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     )
   }
 
-  if (isValidate) return <div className="py-4">{children}</div>
+  if (isValidate) {
+    return <div className="py-4">{children}</div>
+  }
   return (
     <div>
       <Login />

@@ -1,14 +1,14 @@
-import React, { startTransition, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
 import { fetchAPI, fetchResults, generateRandomString, getPercent, notify } from '../../utils'
-import { arrayAtomFamily, arrayAtomObject, counterAtom, userAtom } from '../recoil'
+import { counterAtom, userAtom } from '../recoil'
 import { SpinnerLoader } from '../../utils/Loaders'
 import { Config } from '../../config'
 import { fileProps } from '../../global'
 import CustomModal from '../generic/CustomModal'
 import { AppLayout } from '../layouts/AppLayout'
 import CustomSelect from '../generic/CusomSelect'
-import { NavBarLayout } from '../layouts/NavBarLayout'
+import { DashboardLayout } from '../layouts/DashboardLayout'
 
 const ScrapeByAsin = () => {
   const [asin, setAsin] = useState('B07QXV6N1B\nB0725WFLMB\nB08GWPY8XP')
@@ -124,7 +124,7 @@ const ScrapeByAsin = () => {
   }
   return (
     <AppLayout>
-      <NavBarLayout>
+      <DashboardLayout>
         <div className="flex flex-col items-center mt-10 justify-center">
           <div className="max-w-md px-6 py-6 bg-white shadow-lg rounded-lg w-[600px]">
             <h3 className="text-xl font-semibold mb-4">Scraping By ASIN</h3>
@@ -147,7 +147,7 @@ const ScrapeByAsin = () => {
                 <label htmlFor="keyword-batch" className="block mb-2">
                   Enter Group Name: <span className="text-red-500 text-lg">*</span>
                 </label>
-                {/* <CustomSelect handleSelectChange={handleSelectChange} /> */}
+                <CustomSelect handleSelectChange={handleSelectChange} />
               </div>
               <div className="flex justify-center items-center gap-y-4 flex-col">
                 <div>
@@ -222,7 +222,7 @@ const ScrapeByAsin = () => {
             )}
           </div>
         </div>
-      </NavBarLayout>
+      </DashboardLayout>
     </AppLayout>
   )
 }

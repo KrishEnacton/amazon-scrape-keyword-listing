@@ -5,26 +5,21 @@ import { useNavigate } from 'react-router-dom'
 export const Login = () => {
   const navigate = useNavigate()
   useLayoutEffect(() => {
-    chrome.storage.local.get('user').then((res) => {
-      if (Object.values(res?.user).length == 0) {
-        isLoggedIn().then((res) => {
-          console.log(res, 'res')
-          if (res.redirected === false) {
-            getCreds().then((res) => {
-              const creds = res.credentials
-              getToken({ phone: creds?.user_name, password: creds?.password }).then((res) => {
-                navigate('/asin')
-                chrome.storage.local.set({
-                  user: {
-                    phone: creds.user_name,
-                    password: creds.password,
-                  },
-                })
-              })
+    isLoggedIn().then((res) => {
+      if (res.redirected === false) {
+        getCreds().then((res) => {
+          const creds = res.credentials
+          getToken({ phone: creds?.user_name, password: creds?.password }).then((res) => {
+            navigate('/asin')
+            chrome.storage.local.set({
+              user: {
+                phone: creds.user_name,
+                password: creds.password,
+              },
             })
-          }
+          })
         })
-      }
+      } else navigate('/')
     })
   }, [])
   return (

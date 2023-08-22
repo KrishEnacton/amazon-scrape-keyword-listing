@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 
-export const NavBarLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation()
 
   return (
