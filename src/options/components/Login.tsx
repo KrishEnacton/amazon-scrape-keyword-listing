@@ -9,12 +9,13 @@ export const Login = () => {
       if (res.redirected === false) {
         getCreds().then((res) => {
           const creds = res.credentials
-          getToken({ phone: creds?.user_name, password: creds?.password }).then((res) => {
+          getToken({ phone: creds?.user_name, password: creds?.password }).then((res: any) => {
             navigate('/asin')
             chrome.storage.local.set({
               user: {
                 phone: creds.user_name,
                 password: creds.password,
+                token: res.token,
               },
             })
           })

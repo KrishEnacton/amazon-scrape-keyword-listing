@@ -62,7 +62,11 @@ const ScrapeByAsin = () => {
             for (const _currentASIN of asinList) {
               setCurrentASIN(_currentASIN)
               setLoading({ fetch: true })
-              const scrapped_result = await fetchResults({ asin: _currentASIN, userInfo })
+              const result = await chrome.storage.local.get('user')
+              const scrapped_result = await fetchResults({
+                asin: _currentASIN,
+                userInfo: result?.user,
+              })
               setLoading({ fetch: false })
               if (!scrapped_result) {
                 setLoading({ error: true })
