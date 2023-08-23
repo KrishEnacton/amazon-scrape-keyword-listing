@@ -3,7 +3,7 @@ import { defineManifest } from '@crxjs/vite-plugin'
 export default defineManifest({
   name: 'Amazon listing keyboards',
   description: '',
-  version: '0.2.1',
+  version: '0.2.2',
   manifest_version: 3,
   icons: {
     '16': 'img/logo-16.png',
