@@ -28,9 +28,6 @@ const CustomSelect: React.FC<{ handleSelectChange: any }> = ({ handleSelectChang
       defaultOptions
       loadOptions={promiseOptions}
       onChange={handleSelectChange}
-      onCreateOption={(option) => {
-        promiseOptions(option)
-      }}
     />
   )
 }
