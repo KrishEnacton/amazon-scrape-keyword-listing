@@ -5,23 +5,29 @@ import { useNavigate } from 'react-router-dom'
 export const Login = () => {
   const navigate = useNavigate()
   useLayoutEffect(() => {
-    isLoggedIn().then((res) => {
-      if (res.redirected === false) {
-        getCreds().then((res) => {
-          const creds = res.credentials
-          getToken({ phone: creds?.user_name, password: creds?.password }).then((res: any) => {
-            navigate('/asin')
-            chrome.storage.local.set({
-              user: {
-                phone: creds.user_name,
-                password: creds.password,
-                token: res.token,
-              },
+    chrome.runtime.sendMessage(
+      {
+        from: 'login',
+        action: 'GET_COOKIES',
+      },
+      (res) => {
+        if (res?.cookies.length > 1) {
+          navigate('/asin')
+          getCreds().then((res) => {
+            const creds = res.credentials
+            getToken({ phone: creds?.user_name, password: creds?.password }).then((res: any) => {
+              chrome.storage.local.set({
+                user: {
+                  phone: creds.user_name,
+                  password: creds.password,
+                  token: res.token,
+                },
+              })
             })
           })
-        })
-      } else navigate('/')
-    })
+        } else navigate('/')
+      },
+    )
   }, [])
   return (
     <div className="w-2/6 h-screen   my-16 items-center justify-center gap-x-12 mx-auto">
