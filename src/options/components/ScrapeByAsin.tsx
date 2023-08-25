@@ -83,20 +83,18 @@ const ScrapeByAsin = () => {
                   source: 'asin_reverse',
                   query_items: asinList,
                   batch_id: batch_id,
-                  keywords: scrapped_result.data
-                    .map((i) => ({
-                      keywords: i.keyword,
-                      keywords_chinese: i.keywords_dst,
-                      word_count: i.number_of_roots,
-                      monthly_search_volume: i.search_volume,
-                      qty_competing_products: i.results,
-                      competetion_index: i.comp_index,
-                      click_share: i.top3_click_shared,
-                      conversion_share: i.top3_convert_shared,
-                      order_share: i.top3_proportion,
-                      aba_ranking: null,
-                    }))
-                    .splice(0, 10),
+                  keywords: scrapped_result.data.map((i) => ({
+                    keywords: i.keyword,
+                    keywords_chinese: i.keywords_dst,
+                    word_count: i.number_of_roots,
+                    monthly_search_volume: i.search_volume,
+                    qty_competing_products: i.results,
+                    competetion_index: i.comp_index,
+                    click_share: i.top3_click_shared,
+                    conversion_share: i.top3_convert_shared,
+                    order_share: i.top3_proportion,
+                    aba_ranking: null,
+                  })),
                 }
                 if (body.ASIN && body.data && storeBody.keywords.length > 0) {
                   setLoading({ store: true })
